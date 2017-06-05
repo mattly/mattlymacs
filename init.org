@@ -1,0 +1,233 @@
+#+TITLE: Emacs Configuration File
+#+AUTHOR: Matthew Lyon
+#+BABEL: :cache yes
+#+PROPERTY: header-args :tangle yes
+
+* About
+
+This is my Emacs configuration file written in [[http://orgmode.org][Org mode]]. I have
+decided to move away from [[http://spacemacs.org][Spacemacs]] towards a custom configuration,
+and documenting my config in Org seems like the way to do Emacs right.
+
+** On Emacs vs. Vim, and Evil mode vs. Holy mode.
+
+Years ago, I used vim. I wrote code mostly in dynamically-typed,
+interpreted languages, working on projects of a scale for which I
+could keep their structure in my head. In some cases, I made this into
+an argument for microservices.
+
+Then I worked on a fairly large Scala project, and needed something
+more. The project lead wanted me to use IntelliJ, but Spacemacs was
+relatively new at the time and I thought I'd give that and Ensime a
+try. It was eons better than vim for working on that type of project.
+
+I grew to like spacemacs, primarily for the which-key
+functionality. That's the sort of thing you just can't do in vim
+without hacking it to pieces. And then I found magit. And
+org-mode. And fell in love with lisp.
+
+Don't get me wrong, Tim Pope is an amazingly talented plugin author,
+and NeoVim is making good strides, but for me it's too little, too
+late. Emacs is light years ahead of vim for many things in the same
+way that vim is light years ahead of Notepad.
+
+The stereotypes are true in both directions though: Stock Emacs has
+some utterly crap ergonomics. Yeah, I've mapped Caps-Lock to Control;
+I even used to make that remapping a requirement of co-workers who
+wanted terminal help. Where Emacs provides a better *environment* for
+editing text, vim provides a better *methodology* for doing so. Modal
+editing, the motion/object grammar, and leader keys are concepts I
+wish would seep into more software aimed at power-users.
+
+Here's where Emacs truly shines though: Things like Evil-mode, Hydra,
+and which-key help carry those ergonomic ideas forward in ways you
+simply can't do in vim. Spacemacs nailed this.
+
+* Org, Tangle, init.el and you
+
+The included =init.el= file should, after the first run, mirror the source
+blocks in =init.org=. Running =org-babel-tangle= will extract the code blocks
+from the file into a source-specific file, in this case an =.el= file.
+
+#+BEGIN_SRC emacs-lisp
+  (defun tangle-init ()
+    "If the current buffer is 'init.org' the code-blocks are tangled, and the
+    tangled file is compiled."
+    (when (equal (buffer-file-name)
+                 (expand-file-name (concat user-emacs-directory "init.org")))
+      ;; Avoid running hooks when tangling
+      (let ((prog-mode-hook nil))
+        (org-babel-tangle)
+        (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+  (add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defun reload-init ()
+    (interactive)
+    (load-file "init.el"))
+#+END_SRC
+
+#+RESULTS:
+: reload-init
+
+* Package Management
+
+** package.el Initialization and Repositories
+
+The =package= package is included with Emacs 24 and newer. We've got
+to tell it where to find packages, and initialize it.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (setq package-archives
+        '(("gnu" . "https://elpa.gnu.org/packages/")
+          ("org"   . "http://orgmode.org/elpa/")
+          ("melpa" . "https://melpa.org/packages/")
+          ("melpa-stable" . "https://stable.melpa.org/packages/")))
+  (package-initialize)
+#+END_SRC
+
+** use-package
+
+When reading about how other people manage their own Emacs config, the
+top thing people seem to be happiest with is switching to
+[[https://github.com/jwiegley/use-package][use-package]]. In vim-land, I used my own [[https://github.com/mattly/bork][bork]] project to manage vim
+plugins and never got into the many plugin managers that were becoming
+vogue when I switched away, and I don't have any experience with
+managing Emacs packages outside of Spacemacs, so I'm going to trust
+people on this. =use-package= seems nice from what I've seen.
+
+If it's not installed, we need to install it, and then we need to make
+sure it's installed.
+
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (eval-when-compile
+    (require 'use-package))
+
+  (use-package try :ensure t)
+#+END_SRC
+
+Ensure all packages are installed; if they are not, go and get
+them. This configuration is stored in version control and used on
+multiple machines, and we shouldn't have to think about whether or not
+we've installed them on a particular one.
+
+#+BEGIN_SRC emacs-lisp
+  (setq use-package-always-ensure t)
+#+END_SRC
+
+* Sanitizing Emacs
+** Changing Defaults
+
+  I'm not a fan of most of the Emacs defaults. Thankfully, I don't have to be.
+  
+  Disable the splash screen
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+#+END_SRC
+  
+  Some variables are buffer-local, and sanity is achieved with =setq-default=:
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default fill-column 79)  ; line-width for auto format, warnings, etc
+#+END_SRC
+  
+  I'm not a fan of Customize, or the noise it generates:
+
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file "/dev/null")
+  (load custom-file t)
+#+END_SRC
+
+
+** Improvements
+
+   Smex might just be a temporary thing until I get counsel up and going.
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+    :bind (("M-x" . smex))
+    :config (smex-initialize))
+#+END_SRC
+
+* Evil Mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :demand t
+    :init
+    (setq evil-want-C-u-scroll t
+          evil-want-visual-char-semi-exclusive t
+          evil-want-Y-yank-to-eol t
+          evil-magic t
+          evil-echo-state t
+          evil-indent-convert-tabs t
+          evil-ex-search-vim-style-regexp t
+          evil-ex-substitute-global t
+          evil-ex-visual-char-range t
+          evil-insert-skip-empty-lines t
+          evil-mode-line-format 'nil
+          evil-symbol-word-search t
+          shift-select-mode nil)
+    :config
+    (evil-mode +1)
+    (evil-select-search-module 'evil-search-module 'evil-search)
+    (defun +evil*window-follow (&rest _)  (evil-window-down 1))
+    (defun +evil*window-vfollow (&rest _) (evil-window-right 1))
+    (advice-add #'evil-window-split  :after #'+evil*window-follow)
+    (advice-add #'evil-window-vsplit :after #'+evil*window-vfollow))
+#+END_SRC
+  
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-commentary
+    :commands (evil-commentary evil-commentary-yank evil-commentary-line)
+    :config
+    (evil-commentary-mode 1))
+#+END_SRC
+  
+* Project Management
+  
+** Magit
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :commands (magit-status magit-list-repositories))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setq magit-repository-directories
+        '("~/code" "~/projects"))
+#+END_SRC
+
+* Lisp
+
+#+BEGIN_SRC emacs-lisp
+  (use-package parinfer
+    :ensure t
+    :bind
+    (("C-," . parinfer-toggle-mode))
+    :init
+    (progn
+      (setq parinfer-extensions
+            '(defaults
+               pretty-parens
+               evil
+               paredit
+               smart-yank))
+      (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
+#+END_SRC
+
+* Majors
+** Elisp
+** Org
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :ensure t)
+#+END_SRC
+    
