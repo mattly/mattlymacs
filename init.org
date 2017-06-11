@@ -4,10 +4,9 @@
 #+PROPERTY: header-args :tangle yes
 
 * About
-
-This is my Emacs configuration file written in [[http://orgmode.org][Org mode]]. I have
-decided to move away from [[http://spacemacs.org][Spacemacs]] towards a custom configuration,
-and documenting my config in Org seems like the way to do Emacs right.
+This is my Emacs configuration file written in [[http://orgmode.org][Org mode]]. I have decided to move
+away from [[http://spacemacs.org][Spacemacs]] or [[https://github.com/hlissner/.emacs.d][doom-emacs]] towards a custom configuration, and
+documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** On Emacs vs. Vim, and Evil mode vs. Holy mode.
 
@@ -54,17 +53,17 @@ from the file into a source-specific file, in this case an =.el= file.
     "If the current buffer is 'init.org' the code-blocks are tangled, and the
     tangled file is compiled."
     (when (equal (buffer-file-name)
-                 (expand-file-name (concat user-emacs-directory "init.org")))
+		 (expand-file-name (concat user-emacs-directory "init.org")))
       ;; Avoid running hooks when tangling
       (let ((prog-mode-hook nil))
-        (org-babel-tangle)
-        (byte-compile-file (concat user-emacs-directory "init.el")))))
+	(org-babel-tangle)
+	(byte-compile-file (concat user-emacs-directory "init.el")))))
 
   (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (defun reload-init ()
+  (defun mattly|reload-init ()
     (interactive)
     (load-file "init.el"))
 #+END_SRC
@@ -73,22 +72,22 @@ from the file into a source-specific file, in this case an =.el= file.
 : reload-init
 
 * Package Management
-
+  
 ** package.el Initialization and Repositories
-
-The =package= package is included with Emacs 24 and newer. We've got
-to tell it where to find packages, and initialize it.
-
-#+BEGIN_SRC emacs-lisp
-  (require 'package)
-  (setq package-archives
-        '(("gnu" . "https://elpa.gnu.org/packages/")
-          ("org"   . "http://orgmode.org/elpa/")
-          ("melpa" . "https://melpa.org/packages/")
-          ("melpa-stable" . "https://stable.melpa.org/packages/")))
-  (package-initialize)
-#+END_SRC
-
+   
+   The =package= package is included with Emacs 24 and newer. Tell it where to
+   find packages, and initialize it.
+   
+   #+BEGIN_SRC emacs-lisp
+     (require 'package)
+     (setq package-archives
+           '(("gnu" . "https://elpa.gnu.org/packages/")
+             ("org"   . "http://orgmode.org/elpa/")
+             ("melpa" . "https://melpa.org/packages/")
+             ("melpa-stable" . "https://stable.melpa.org/packages/")))
+     (package-initialize)
+   #+END_SRC
+   
 ** use-package
 
 When reading about how other people manage their own Emacs config, the
@@ -124,56 +123,92 @@ we've installed them on a particular one.
 
 * Sanitizing Emacs
 ** Changing Defaults
-
-  I'm not a fan of most of the Emacs defaults. Thankfully, I don't have to be.
-  
-  Disable the splash screen
-#+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-message t)
-#+END_SRC
-  
-  Some variables are buffer-local, and sanity is achieved with =setq-default=:
-
-#+BEGIN_SRC emacs-lisp
-  (setq-default fill-column 79)  ; line-width for auto format, warnings, etc
-#+END_SRC
-  
-  I'm not a fan of Customize, or the noise it generates:
-
-#+BEGIN_SRC emacs-lisp
-  (setq custom-file "/dev/null")
-  (load custom-file t)
-#+END_SRC
-
-
-** Improvements
-
-   Smex might just be a temporary thing until I get counsel up and going.
-#+BEGIN_SRC emacs-lisp
+   
+   I'm not a fan of most of the Emacs defaults. Thankfully, I don't have to be.
+   
+   First of all, let's use UTF-8 everywhere. It's 2017, for crying out loud.
+   #+BEGIN_SRC emacs-lisp
+     (when (fboundp 'set-charset-priority)
+       (set-charset-priority 'unicode))
+     (prefer-coding-system 'utf-8)
+     (set-terminal-coding-system 'utf-8)
+     (set-keyboard-coding-system 'utf-8)
+     (set-selection-coding-system 'utf-8)
+     (setq locale-coding-system 'utf-8)
+     (setq-default buffer-file-coding-system 'utf-8)
+   #+END_SRC
+   
+   Disable the splash screen
+   #+BEGIN_SRC emacs-lisp
+     (setq inhibit-startup-message t
+           inhibit-startup-echo-area-message user-login-name
+           inhibit-default-init t
+           initial-major-mode 'text-mode
+           initial-scratch-message nil)
+   #+END_SRC
+   
+   Some variables are buffer-local, and sanity is achieved with =setq-default=:
+   #+BEGIN_SRC emacs-lisp
+     (setq-default fill-column 79)  ; line-width for auto format, warnings, etc
+   #+END_SRC
+   
+   I'm not a fan of Customize, or the noise it generates.
+   #+BEGIN_SRC emacs-lisp
+     (setq custom-file "/dev/null")
+     (load custom-file t)
+   #+END_SRC
+   
+** Programming Helpers
+   The included =cl-lib= module contains many functions from common lisp. Quite
+   frankly, I'm not very clear yet on where common lisp ends and emacs begins.
+   #+BEGIN_SRC emacs-lisp
+     (require 'cl-lib)
+   #+END_SRC
+   
+** Package Improvements
+   
+*** smex
+    Smex shows various options for =M-x= commands. It's probably just a
+    temporary fling until I get around to installing counsel.
+   #+BEGIN_SRC emacs-lisp
   (use-package smex
-    :bind (("M-x" . smex))
     :config (smex-initialize))
-#+END_SRC
-
+   #+END_SRC
+   
+*** which-key
+    =which-key= might be one of the best new things in power-user interfaces to
+    come along in years. Having all the commands in the word available at your
+    fingertips is great, but without a good discoverability mechanism it doesn't
+    do much good.
+    #+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :commands (which-key-mode)
+    :config
+    (add-hook 'window-setup-hook #'which-key-mode))
+    #+END_SRC
+    
 * Evil Mode
-
-#+BEGIN_SRC emacs-lisp
+  
+  A necessary evil. I don't have much to say about this beyond what I said at
+  the beginning. A tidbit at the end of the =:config= section sets up the "correct"
+  behavior of focusing the new window when creating a split.
+  #+BEGIN_SRC emacs-lisp
   (use-package evil
     :demand t
     :init
     (setq evil-want-C-u-scroll t
-          evil-want-visual-char-semi-exclusive t
-          evil-want-Y-yank-to-eol t
-          evil-magic t
-          evil-echo-state t
-          evil-indent-convert-tabs t
-          evil-ex-search-vim-style-regexp t
-          evil-ex-substitute-global t
-          evil-ex-visual-char-range t
-          evil-insert-skip-empty-lines t
-          evil-mode-line-format 'nil
-          evil-symbol-word-search t
-          shift-select-mode nil)
+	  evil-want-visual-char-semi-exclusive t
+	  evil-want-Y-yank-to-eol t
+	  evil-magic t
+	  evil-echo-state t
+	  evil-indent-convert-tabs t
+	  evil-ex-search-vim-style-regexp t
+	  evil-ex-substitute-global t
+	  evil-ex-visual-char-range t
+	  evil-insert-skip-empty-lines t
+	  evil-mode-line-format 'nil
+	  evil-symbol-word-search t
+	  shift-select-mode nil)
     :config
     (evil-mode +1)
     (evil-select-search-module 'evil-search-module 'evil-search)
@@ -181,46 +216,139 @@ we've installed them on a particular one.
     (defun +evil*window-vfollow (&rest _) (evil-window-right 1))
     (advice-add #'evil-window-split  :after #'+evil*window-follow)
     (advice-add #'evil-window-vsplit :after #'+evil*window-vfollow))
-#+END_SRC
+  #+END_SRC
   
-#+BEGIN_SRC emacs-lisp
+** evil-commentary
+   Automatically sets up =gc= and =gcc= similar to the vim plugin, also provides:
+
+   - =gy= :: yanks (copies) the uncommented code, and comments the motion out
+   - =s-/= :: comments out the current line, similar to =gcc=
+  #+BEGIN_SRC emacs-lisp
   (use-package evil-commentary
     :commands (evil-commentary evil-commentary-yank evil-commentary-line)
     :config
     (evil-commentary-mode 1))
-#+END_SRC
+  #+END_SRC
   
 * Project Management
   
 ** Magit
+   
+   [[https://magit.vc][Magit]] is pretty awesome, and I say that as someone who used to prefer the
+   command line, and came up with all sorts of pithy aliases in his [[https://github.com/mattly/dotfiles/blob/master/configs/gitconfig#L46][gitconfig]]
+   to handle common operations. I guess I had a sort-of stockholm syndrome for
+   git's poor user interface.
+   #+BEGIN_SRC emacs-lisp
+     (use-package magit
+       :commands (magit-status magit-list-repositories))
+   #+END_SRC
+   
+   I'm not yet using =magit-list-repositories= regularly, but in the meantime
+   it's a nice alternative to what spacemacs has in "list projects"
 
-#+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :commands (magit-status magit-list-repositories))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (setq magit-repository-directories
-        '("~/code" "~/projects"))
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (setq magit-repository-directories
+           '("~/code" "~/projects"))
+   #+END_SRC
 
 * Lisp
+  People who complain about the abundance of parenthesis in lisps miss the
+  point. In over two years of working primarily with lisps full-time, the only
+  times I've had to think about managing parenthesis manually was when I was
+  making a small edit to something in the GitHub editor or the like. And sure,
+  I usually screw it up. But the whole point of having parenthesis and spaces
+  as your primary syntax delimiters is to enable _structural editing_, a
+  powerful idea and practice that's difficult to execute well in languages which
+  complicate their syntax away from its strucutre.
+  
+  If you use an auto-close or auto-pair style plugin, that automatically inserts
+  a closing paren, bracket, quote, or such, or highlights its compliement, you 
+  already practice a weak form of structural editing -- the editor knows that 
+  certain characters form nodes in a syntax tree, and helps to both ensure the
+  integrity of that tree and highlight its structure. Structural editing is that,
+  but much more powerful.
+  
+** Parinfer
+   As an initial experiment, I'm seeing how far I can get with the lighter
+   weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier. I used
+   parinfer solely when trying out Atom briefly, and while I feel Atom has a long
+   way to go before it's really usable for me, I did quite like parinfer.
 
-#+BEGIN_SRC emacs-lisp
-  (use-package parinfer
-    :ensure t
-    :bind
-    (("C-," . parinfer-toggle-mode))
-    :init
-    (progn
-      (setq parinfer-extensions
-            '(defaults
-               pretty-parens
-               evil
-               paredit
-               smart-yank))
-      (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (use-package parinfer
+       :ensure t
+       :init
+       (progn
+         (setq parinfer-extensions
+               '(defaults
+                  pretty-parens
+                  evil
+                  smart-yank))
+         (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
+   #+END_SRC
+
+* Key Bindings
+** Easy Binding Macro
+  This keybinding macro is taken almost wholesale from [[https://github.com/hlissner/.emacs.d/blob/99ef794f9261df61f424cec9fbcffe3d54b0b355/core/core-keybinds.el][doom-emacs]]. Since it's not a
+  standalone, I had to copy it.
+  #+BEGIN_SRC emacs-lisp
+    (require 'keybinds (concat (expand-file-name user-emacs-directory) "keybinds"))
+  #+END_SRC
+  
+** All Mode Mappings
+  #+BEGIN_SRC emacs-lisp
+    (map!
+     :nvime "M-x" #'smex)
+  #+END_SRC
+  
+** File Manipulation
+   #+BEGIN_SRC emacs-lisp
+     (map!
+      (:leader
+	(:desc "files" :prefix "f"
+	  :desc "delete (any file)" :n "D" #'delete-file
+	  :desc "rename (any file)" :n "R" #'rename-file
+	  :desc "save" :n "s" #'save-buffer)))
+   #+END_SRC
+   
+** Source Control (git)
+   
+   #+BEGIN_SRC emacs-lisp
+     (map!
+      (:leader
+        (:desc "git" :prefix "g"
+          :desc "blame" :n "b" #'magit-blame
+          :desc "status" :n "s" #'magit-status)))
+   #+END_SRC
+
+** Window Manipulation
+   
+   #+BEGIN_SRC emacs-lisp
+    (map!
+     (:leader
+       (:desc "window" :prefix "w"
+	 ;; navigation
+	 :desc "left" :n "h" #'evil-window-left
+	 :desc "up" :n "k" #'evil-window-up
+	 :desc "down" :n "j" #'evil-window-down
+	 :desc "right" :n "l" #'evil-window-right
+	 ;; opening
+	 :desc "split below" :n "s" #'evil-window-split
+	 :desc "split right" :n "v" #'evil-window-vsplit
+	 ;; closing
+	 :desc "delete" :n "d" #'evil-window-delete)))
+      
+   #+END_SRC
+   
+** Config File
+   
+   #+BEGIN_SRC emacs-lisp
+  (map!
+   (:leader
+     (:desc "config" :prefix "\\"
+       :desc "reload config" :n "r" #'mattly|reload-init)))
+
+   #+END_SRC
 
 * Majors
 ** Elisp
@@ -228,6 +356,18 @@ we've installed them on a particular one.
 
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :ensure t)
+    :ensure t
+    :config
+    (setq org-src-window-setup 'current-window))
 #+END_SRC
     
+*** Babel
+    
+    One bit of sanity
+
+  #+BEGIN_SRC emacs-lisp
+    (defun +org|init-babel ()
+      (setq org-src-window-setup 'current-window))
+
+    (add-hook 'org-mode-hook #'+org|init-babel)
+  #+END_SRC 
