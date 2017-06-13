@@ -42,7 +42,7 @@ Here's where Emacs truly shines though: Things like Evil-mode, Hydra,
 and which-key help carry those ergonomic ideas forward in ways you
 simply can't do in vim. Spacemacs nailed this.
 
-* Org, Tangle, init.el and you
+* Literate Emacs configuration with Org
 
 The included =init.el= file should, after the first run, mirror the source
 blocks in =init.org=. Running =org-babel-tangle= will extract the code blocks
@@ -68,58 +68,48 @@ from the file into a source-specific file, in this case an =.el= file.
     (load-file "init.el"))
 #+END_SRC
 
-#+RESULTS:
-: reload-init
-
-* Package Management
-  
-** package.el Initialization and Repositories
-   
-   The =package= package is included with Emacs 24 and newer. Tell it where to
-   find packages, and initialize it.
-   
-   #+BEGIN_SRC emacs-lisp
-     (require 'package)
-     (setq package-archives
-           '(("gnu" . "https://elpa.gnu.org/packages/")
-             ("org"   . "http://orgmode.org/elpa/")
-             ("melpa" . "https://melpa.org/packages/")
-             ("melpa-stable" . "https://stable.melpa.org/packages/")))
-     (package-initialize)
-   #+END_SRC
+* Bootstrapping Package Management
+  The =package= package is included with Emacs 24 and newer. Tell it where to
+  find packages, and initialize it.
+  #+BEGIN_SRC emacs-lisp
+    (require 'package)
+    (setq package-archives
+          '(("gnu" . "https://elpa.gnu.org/packages/")
+            ("org"   . "http://orgmode.org/elpa/")
+            ("melpa" . "https://melpa.org/packages/")
+            ("melpa-stable" . "https://stable.melpa.org/packages/")))
+    (package-initialize)
+  #+END_SRC
    
 ** use-package
+  When reading about how other people manage their own Emacs config, the
+  top thing people seem to be happiest with is switching to
+  [[https://github.com/jwiegley/use-package][use-package]]. In vim-land, I used my own [[https://github.com/mattly/bork][bork]] project to manage vim
+  plugins and never got into the many plugin managers that were becoming
+  vogue when I switched away, and I don't have any experience with
+  managing Emacs packages outside of Spacemacs, so I'm going to trust
+  people on this. =use-package= seems nice from what I've seen.
+  
+  If it's not installed, we need to install it, and then we need to make
+  sure it's installed.
+  #+BEGIN_SRC emacs-lisp
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package))
 
-When reading about how other people manage their own Emacs config, the
-top thing people seem to be happiest with is switching to
-[[https://github.com/jwiegley/use-package][use-package]]. In vim-land, I used my own [[https://github.com/mattly/bork][bork]] project to manage vim
-plugins and never got into the many plugin managers that were becoming
-vogue when I switched away, and I don't have any experience with
-managing Emacs packages outside of Spacemacs, so I'm going to trust
-people on this. =use-package= seems nice from what I've seen.
+    (eval-when-compile
+      (require 'use-package))
 
-If it's not installed, we need to install it, and then we need to make
-sure it's installed.
+    (use-package try :ensure t)
+  #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-
-  (eval-when-compile
-    (require 'use-package))
-
-  (use-package try :ensure t)
-#+END_SRC
-
-Ensure all packages are installed; if they are not, go and get
-them. This configuration is stored in version control and used on
-multiple machines, and we shouldn't have to think about whether or not
-we've installed them on a particular one.
-
-#+BEGIN_SRC emacs-lisp
-  (setq use-package-always-ensure t)
-#+END_SRC
+  Ensure all packages are installed; if they are not, go and get
+  them. This configuration is stored in version control and used on
+  multiple machines, and we shouldn't have to think about whether or not
+  we've installed them on a particular one.
+  #+BEGIN_SRC emacs-lisp
+    (setq use-package-always-ensure t)
+  #+END_SRC
 
 * Sanitizing Emacs
 ** Changing Defaults
@@ -158,6 +148,19 @@ we've installed them on a particular one.
      (load custom-file t)
    #+END_SRC
    
+** Local Directories
+   Some places to keep things
+   #+BEGIN_SRC emacs-lisp
+     (defvar mattlymacs-dir (expand-file-name user-emacs-directory)
+       "The path to the emacs.d directory")
+
+     (defvar mattlymacs-cache-dir (concat mattlymacs-dir "/cache/")
+       "Volatile storage. We can write a function to purge it. It shouldn't be in
+       source control.")
+
+     (defvar mattlymacs-package-dir (concat mattlymacs-dir "/packages/")
+       "Where package.el plugins are stored.")
+   #+END_SRC
 ** Programming Helpers
    The included =cl-lib= module contains many functions from common lisp. Quite
    frankly, I'm not very clear yet on where common lisp ends and emacs begins.
@@ -187,6 +190,72 @@ we've installed them on a particular one.
     (add-hook 'window-setup-hook #'which-key-mode))
     #+END_SRC
     
+* User Interface
+  First, set some things
+  #+BEGIN_SRC emacs-lisp
+    (fset #'yes-or-no-p #'y-or-n-p) ; y/n instead of yes/no
+
+    (setq-default
+     bidi-display-reordering nil ; disable bidirectional text for tiny performance boost
+     blink-matching-paren nil    ; don't blink--too distracting
+     cursor-in-non-selected-windows nil  ; hide cursors in other windows
+     frame-inhibit-implied-resize t
+     ;; remove continuation arrow on right fringe
+     fringe-indicator-alist (delq (assq 'continuation fringe-indicator-alist)
+                                  fringe-indicator-alist)
+     highlight-nonselected-windows nil
+     indicate-buffer-boundaries nil
+     indicate-empty-lines nil
+     max-mini-window-height 0.3
+     mode-line-default-help-echo nil ; disable mode-line mouseovers
+     split-width-threshold nil       ; favor horizontal splits
+     uniquify-buffer-name-style 'forward
+     use-dialog-box nil              ; always avoid GUI
+     visible-cursor nil
+     x-stretch-cursor nil
+     ;; defer jit font locking slightly to [try to] improve Emacs performance
+     jit-lock-defer-time nil
+     jit-lock-stealth-nice 0.1
+     jit-lock-stealth-time 0.2
+     jit-lock-stealth-verbose nil
+     ;; `pos-tip' defaults
+     pos-tip-internal-border-width 6
+     pos-tip-border-width 1
+     ;; no beeping or blinking please
+     ring-bell-function #'ignore
+     visible-bell nil)
+
+  #+END_SRC
+  
+  Kill some GUI annoyances
+  #+BEGIN_SRC emacs-lisp
+    (tooltip-mode -1) ; relegates tooltips to the echo area
+    (menu-bar-mode -1)
+    (when (fboundp 'tool-bar-mode)
+      (tool-bar-mode -1))
+    (when (fboundp 'scroll-bar-mode)
+      (scroll-bar-mode -1))
+  #+END_SRC
+  
+** Operating System Basics
+   I mostly use emacs on macOS, but that might change in the near future. I'd
+   rather not bake in the assumption.
+   #+BEGIN_SRC emacs-lisp
+     (defconst IS-MAC   (eq system-type 'darwin))
+     (defconst IS-LINUX (eq system-type 'gnu/linux))
+   #+END_SRC
+   
+** Macintosh Setup
+   These seem to be the defaults on [[https://bitbucket.org/mituharu/emacs-mac/overview][RailwayCat's Emacs-mac]], but I prefer to be
+   explicit when possible.
+   #+BEGIN_SRC emacs-lisp
+     (when IS-MAC
+       (setq mac-command-modifier 'meta
+             mac-option-modifier 'alt)
+       (when (require 'osx-clipboard nil t)))
+         ;; (osx-clipboard-mode +1)))
+   #+END_SRC
+
 * Evil Mode
   
   A necessary evil. I don't have much to say about this beyond what I said at
@@ -230,8 +299,37 @@ we've installed them on a particular one.
     (evil-commentary-mode 1))
   #+END_SRC
   
+* Editor Niceties
+  
+** Recent Files
+   Keep track of recent files
+   #+BEGIN_SRC emacs-lisp
+     (use-package recentf
+       :config
+       (setq recentf-max-menu-items 0
+             recentf-max-saved-items 300
+             recentf-exclude (list "^/tmp" "^/ssh:" "^/var/folders/.+$"
+                                   "\\.?ido\\.last$" "\\.revive$" "/TAGS$"))
+       (recentf-mode 1))
+   #+END_SRC
+
 * Project Management
   
+** Projectile
+   One of my first big gripes when moving to Emacs from vim was, I was used to working with
+   per-project vim instances under tmux, so buffers were naturally isolated based on where
+   the vim instance was created from.
+   
+   Working in the Emacs GUI, you don't really have that. Buffers are shared across all frames,
+   and if you tend to have multiple projects open (as I do), it can get confusing quickly.
+
+   [[https://github.com/bbatsov/projectile][Projectile]] aims to fix that.
+   
+   #+BEGIN_SRC emacs-lisp
+     (use-package projectile
+       :demand t)
+   #+END_SRC
+
 ** Magit
    
    [[https://magit.vc][Magit]] is pretty awesome, and I say that as someone who used to prefer the
@@ -288,6 +386,10 @@ we've installed them on a particular one.
    #+END_SRC
 
 * Key Bindings
+  I've come to adore the spacemacs binding grammar for how it provides a
+  similar sort of pattern to file/buffer/window/etc commands as vim's grammar
+  does to text manipulation. 
+
 ** Easy Binding Macro
   This keybinding macro is taken almost wholesale from [[https://github.com/hlissner/.emacs.d/blob/99ef794f9261df61f424cec9fbcffe3d54b0b355/core/core-keybinds.el][doom-emacs]]. Since it's not a
   standalone, I had to copy it.
@@ -295,20 +397,46 @@ we've installed them on a particular one.
     (require 'keybinds (concat (expand-file-name user-emacs-directory) "keybinds"))
   #+END_SRC
   
+  
+** Help
+   One of the things that impressed me most about Emacs is the built-in help
+   system. While it's fairly easy to remember =C-x k= for =describe-key=, for
+   example, and while =which-key= makes it easy to discover the remainder of
+   the help functions, I'd prefer to put them under a leader binding.
+   
+   #+BEGIN_SRC emacs-lisp 
+     (map!
+      :leader
+      (:desc "help" :prefix "h"
+        :desc "describe function" :n "f" #'describe-function
+        :desc "describe key" :n "k" #'describe-key
+        :desc "describe variable" :n "v" #'describe-variable))
+   #+END_SRC
+
 ** All Mode Mappings
   #+BEGIN_SRC emacs-lisp
     (map!
      :nvime "M-x" #'smex)
   #+END_SRC
+   
+** Buffer Manipulation
+   #+BEGIN_SRC emacs-lisp
+     (map!
+      :leader
+      (:desc "buffer" :prefix "b"
+        :desc "menu" :n "b" #'buffer-menu
+        :desc "delete" :n "d" #'evil-delete-buffer))
+   #+END_SRC
   
 ** File Manipulation
    #+BEGIN_SRC emacs-lisp
      (map!
       (:leader
-	(:desc "files" :prefix "f"
-	  :desc "delete (any file)" :n "D" #'delete-file
-	  :desc "rename (any file)" :n "R" #'rename-file
-	  :desc "save" :n "s" #'save-buffer)))
+        (:desc "files" :prefix "f"
+          :desc "delete (any file)" :n "D" #'delete-file
+          :desc "recent file list" :n "r" #'recentf-open-files
+          :desc "rename (any file)" :n "R" #'rename-file
+          :desc "save" :n "s" #'save-buffer)))
    #+END_SRC
    
 ** Source Control (git)
@@ -324,20 +452,19 @@ we've installed them on a particular one.
 ** Window Manipulation
    
    #+BEGIN_SRC emacs-lisp
-    (map!
-     (:leader
-       (:desc "window" :prefix "w"
-	 ;; navigation
-	 :desc "left" :n "h" #'evil-window-left
-	 :desc "up" :n "k" #'evil-window-up
-	 :desc "down" :n "j" #'evil-window-down
-	 :desc "right" :n "l" #'evil-window-right
-	 ;; opening
-	 :desc "split below" :n "s" #'evil-window-split
-	 :desc "split right" :n "v" #'evil-window-vsplit
-	 ;; closing
-	 :desc "delete" :n "d" #'evil-window-delete)))
-      
+     (map!
+      (:leader
+        (:desc "window" :prefix "w"
+          ;; navigation
+          :desc "left" :n "h" #'evil-window-left
+          :desc "up" :n "k" #'evil-window-up
+          :desc "down" :n "j" #'evil-window-down
+          :desc "right" :n "l" #'evil-window-right
+          ;; opening
+          :desc "split below" :n "s" #'evil-window-split
+          :desc "split right" :n "v" #'evil-window-vsplit
+          ;; closing
+          :desc "delete" :n "d" #'evil-window-delete)))
    #+END_SRC
    
 ** Config File
