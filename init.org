@@ -593,16 +593,44 @@ The Wizard translates: “We cannot get out! We cannot get out! They are coming!
 
    #+END_SRC
 
-* Majors
+* Major Modes (file types, languages, etc)
 ** Elisp
 ** Org
+   Org is as close to a realization of the editable, interactive, embeddable
+   content varietal document as I've seen since Steve Jobs killed OpenDoc back
+   in the 90s. Aping that was one of the first things I tried to do as a personal
+   project after I first learned how to program something more complicated than a
+   shell script.
+   #+BEGIN_SRC emacs-lisp
+     (use-package org
+       :ensure t
+       :config
+       (setq org-src-window-setup 'current-window)
+       (add-hook 'org-mode-hook #'+org|init))
+       ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+   #+END_SRC
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun +org|init ()
+       (+org|init-keybinds))
+   #+END_SRC
+   
+   #+BEGIN_SRC emacs-lisp
+     (defun +org|init-keybinds ()
+       "Initialize my org-mode keybindings." 
+       (map! (:map org-mode-map
+               "RET" #'org-return-indent)
+             (:map org-mode-map
+               :nv "j" #'evil-next-visual-line
+               :nv "k" #'evil-previous-visual-line
 
-#+BEGIN_SRC emacs-lisp
-  (use-package org
-    :ensure t
-    :config
-    (setq org-src-window-setup 'current-window))
-#+END_SRC
+               (:localleader
+                 :desc "edit special" :n "c" #'org-edit-special
+                 :desc "insert link" :n "l" #'org-insert-link
+                 (:desc "structure" :prefix "s"
+                   :desc "move subtree up" :n "k" #'org-move-subtree-up))))) 
+         
+   #+END_SRC
     
 *** Babel
     
