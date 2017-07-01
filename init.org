@@ -10,7 +10,6 @@ documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** TODO Yaks to Shave:
 *** TODO org-mode
-**** TODO org-bullets
 **** TODO org keybindings for structural editing
 *** something for auto-closing quotes, etc
 *** TODO lisp-mode, paredit, etc
@@ -600,19 +599,32 @@ The Wizard translates: “We cannot get out! We cannot get out! They are coming!
    content varietal document as I've seen since Steve Jobs killed OpenDoc back
    in the 90s. Aping that was one of the first things I tried to do as a personal
    project after I first learned how to program something more complicated than a
-   shell script.
+   shell script. I failed because, well, I wasn't ready yet. Twelve years later,
+   I'm still not ready, so I use org-mode.
    #+BEGIN_SRC emacs-lisp
      (use-package org
        :ensure t
        :config
        (setq org-src-window-setup 'current-window)
        (add-hook 'org-mode-hook #'+org|init))
-       ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+   #+END_SRC
+
+   Yeah so org-bullets is one of those eye candy things that actually makes it
+   feel like you're not really using a forty-year old program. That counts
+   for something.
+   #+BEGIN_SRC emacs-lisp
+     (use-package org-bullets
+       :defer t
+       :commands (org-bullets-mode)
+       :config
+       (setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
+       (setq org-bullets-face-name 'org-bullet))
    #+END_SRC
    
    #+BEGIN_SRC emacs-lisp
      (defun +org|init ()
-       (+org|init-keybinds))
+       (+org|init-keybinds)
+       (org-bullets-mode 1))
    #+END_SRC
    
    #+BEGIN_SRC emacs-lisp
