@@ -8,6 +8,16 @@ This is my Emacs configuration file written in [[http://orgmode.org][Org mode]].
 away from [[http://spacemacs.org][Spacemacs]] or [[https://github.com/hlissner/.emacs.d][doom-emacs]] towards a custom configuration, and
 documenting my config in Org in a /literate/ fashion seems like the way to go.
 
+** TODO Yaks to Shave:
+*** TODO org-mode
+**** TODO org-bullets
+**** TODO org keybindings for structural editing
+*** something for auto-closing quotes, etc
+*** TODO lisp-mode, paredit, etc
+*** TODO Elisp Stuff
+*** TODO Clojure Mode
+
+
 ** On Emacs vs. Vim, and Evil mode vs. Holy mode.
 
 Years ago, I used vim. I wrote code mostly in dynamically-typed,
@@ -74,9 +84,9 @@ from the file into a source-specific file, in this case an =.el= file.
   #+BEGIN_SRC emacs-lisp
     (require 'package)
     (setq package-archives
-          '(("gnu" . "https://elpa.gnu.org/packages/")
+          '(("melpa" . "https://melpa.org/packages/")
+            ("gnu" . "https://elpa.gnu.org/packages/")
             ("org"   . "http://orgmode.org/elpa/")
-            ("melpa" . "https://melpa.org/packages/")
             ("melpa-stable" . "https://stable.melpa.org/packages/")))
     (package-initialize)
   #+END_SRC
@@ -94,8 +104,8 @@ from the file into a source-specific file, in this case an =.el= file.
   sure it's installed.
   #+BEGIN_SRC emacs-lisp
     (unless (package-installed-p 'use-package)
-      (package-refresh-contents)
-      (package-install 'use-package))
+            (package-refresh-contents)
+            (package-install 'use-package))
 
     (eval-when-compile
       (require 'use-package))
@@ -154,12 +164,22 @@ from the file into a source-specific file, in this case an =.el= file.
      (defvar mattlymacs-dir (expand-file-name user-emacs-directory)
        "The path to the emacs.d directory")
 
-     (defvar mattlymacs-cache-dir (concat mattlymacs-dir "/cache/")
+     (defvar mattlymacs-local-dir (concat mattlymacs-dir ".local/")
+       "Root directory for local Emacs files. Use this as storage for files that
+        are safe to share across computers.")
+
+     (defvar mattlymacs-cache-dir (concat mattlymacs-dir "cache/")
        "Volatile storage. We can write a function to purge it. It shouldn't be in
        source control.")
 
-     (defvar mattlymacs-package-dir (concat mattlymacs-dir "/packages/")
+     (defvar mattlymacs-packages-dir (concat mattlymacs-dir "packages/")
        "Where package.el plugins are stored.")
+
+     (setq-default
+      abbrev-file-name (concat mattlymacs-local-dir "abbrev.el")
+      auto-save-list-file-name (concat mattlymacs-cache-dir "autosave")
+      backup-directory-alist (list (cons "." (concat mattlymacs-cache-dir "backup/")))
+      pcache-directory (concat mattlymacs-cache-dir "pcache/"))
    #+END_SRC
 ** Programming Helpers
    The included =cl-lib= module contains many functions from common lisp. Quite
@@ -191,6 +211,7 @@ from the file into a source-specific file, in this case an =.el= file.
     #+END_SRC
     
 * User Interface
+** Emacs Settings
   First, set some things
   #+BEGIN_SRC emacs-lisp
     (fset #'yes-or-no-p #'y-or-n-p) ; y/n instead of yes/no
