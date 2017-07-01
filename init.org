@@ -188,6 +188,18 @@ from the file into a source-specific file, in this case an =.el= file.
      (require 'cl-lib)
    #+END_SRC
    
+** Initialization Hooks
+
+   #+BEGIN_SRC emacs-lisp
+     (defvar mattlymacs-init-hook nil
+       "A list of hooks to run when initialized")
+
+     (defun mattly|initialize ()
+       (run-hooks 'mattlymacs-init-hook))   
+
+     (add-hook 'emacs-startup-hook #'mattly|initialize)
+   #+END_SRC
+   
 ** Package Improvements
    
 *** smex
@@ -277,6 +289,15 @@ from the file into a source-specific file, in this case an =.el= file.
          ;; (osx-clipboard-mode +1)))
    #+END_SRC
 
+** Theme
+   Eventually I'm going to publish this theme.
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'custom-theme-load-path "/Users/mattly/projects/emacs/akkala-theme/")
+     (add-to-list 'load-path "/Users/mattly/projects/emacs/akkala-theme/")
+     (require 'akkala-themes)
+     (load-theme 'akkala-basic)
+   #+END_SRC
+
 * Evil Mode
   
   A necessary evil. I don't have much to say about this beyond what I said at
@@ -328,11 +349,37 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package recentf
        :config
        (setq recentf-max-menu-items 0
+             recentf-save-file (concat mattlymacs-cache-dir "recentf")
              recentf-max-saved-items 300
              recentf-exclude (list "^/tmp" "^/ssh:" "^/var/folders/.+$"
                                    "\\.?ido\\.last$" "\\.revive$" "/TAGS$"))
        (recentf-mode 1))
    #+END_SRC
+
+
+** Counsel / Swiper / Ivy
+
+   #+BEGIN_SRC emacs-lisp
+     (use-package counsel
+       :ensure t)
+
+     (use-package ivy
+       :ensure t
+       :config
+       (progn
+	 (ivy-mode 1)))
+
+     (use-package all-the-icons-ivy
+       :config
+       (all-the-icons-ivy-setup))
+   #+END_SRC
+
+** Details
+   Handy package for easy-peasy restarts when you need them.
+#+BEGIN_SRC emacs-lisp
+  (use-package restart-emacs
+    :defer t)
+#+END_SRC
 
 * Project Management
   
@@ -340,15 +387,28 @@ from the file into a source-specific file, in this case an =.el= file.
    One of my first big gripes when moving to Emacs from vim was, I was used to working with
    per-project vim instances under tmux, so buffers were naturally isolated based on where
    the vim instance was created from.
-   
    Working in the Emacs GUI, you don't really have that. Buffers are shared across all frames,
    and if you tend to have multiple projects open (as I do), it can get confusing quickly.
 
    [[https://github.com/bbatsov/projectile][Projectile]] aims to fix that.
-   
    #+BEGIN_SRC emacs-lisp
      (use-package projectile
-       :demand t)
+       :demand t
+       :init
+       (setq
+        projectile-cache-file (concat mattlymacs-cache-dir "projectile.cache")
+        projectile-enable-caching (not noninteractive)
+        projectile-globally-ignored-directories `(,mattlymacs-local-dir ".sync")
+        projectile-globally-ignored-file-suffixes '(".elc")
+        projectile-globally-ignored-files '(".DS_Store")
+        projectile-indexing-method 'alien
+        projectile-known-projects-file (concat mattlymacs-cache-dir "projectile.projects")
+        projectile-require-project-root nil
+        projectile-project-root-files
+        '(".git" ".hg" ".project" "package.json"))
+       :config
+       (add-hook 'mattlymacs-init-hook #'projectile-mode))
+
    #+END_SRC
 
 ** Magit
@@ -416,6 +476,7 @@ from the file into a source-specific file, in this case an =.el= file.
   standalone, I had to copy it.
   #+BEGIN_SRC emacs-lisp
     (require 'keybinds (concat (expand-file-name user-emacs-directory) "keybinds"))
+    (setq doom-localleader-key ",")
   #+END_SRC
   
   
@@ -429,15 +490,16 @@ from the file into a source-specific file, in this case an =.el= file.
      (map!
       :leader
       (:desc "help" :prefix "h"
-        :desc "describe function" :n "f" #'describe-function
+        :desc "describe function" :n "f" #'counsel-describe-function
         :desc "describe key" :n "k" #'describe-key
-        :desc "describe variable" :n "v" #'describe-variable))
+        :desc "describe variable" :n "v" #'counsel-describe-variable))
    #+END_SRC
 
 ** All Mode Mappings
   #+BEGIN_SRC emacs-lisp
     (map!
-     :nvime "M-x" #'smex)
+     :nvime "M-x" #'counsel-M-x)
+     ;; :nvime "M-x" #'smex)
   #+END_SRC
    
 ** Buffer Manipulation
@@ -455,6 +517,7 @@ from the file into a source-specific file, in this case an =.el= file.
       (:leader
         (:desc "files" :prefix "f"
           :desc "delete (any file)" :n "D" #'delete-file
+          :desc "find file" :n "f" #'counsel-find-file
           :desc "recent file list" :n "r" #'recentf-open-files
           :desc "rename (any file)" :n "R" #'rename-file
           :desc "save" :n "s" #'save-buffer)))
@@ -467,7 +530,39 @@ from the file into a source-specific file, in this case an =.el= file.
       (:leader
         (:desc "git" :prefix "g"
           :desc "blame" :n "b" #'magit-blame
+          :desc "counsel" :n "c" 'counsel-git
+          :desc "counsel grep" :n "g" 'counsel-git-grep
           :desc "status" :n "s" #'magit-status)))
+   #+END_SRC
+   
+** Project Management
+
+   #+BEGIN_SRC emacs-lisp
+     (map!
+      (:leader
+        (:desc "project" :prefix "p"
+          :desc "find file" :n "f" #'projectile-find-file
+          :desc "switch project" :n "p" #'projectile-switch-project
+          :desc "recent files" :n "r" #'projectile-recentf
+          :desc "invalidate cache" :n "x" #'projectile-invalidate-cache))) 
+   #+END_SRC
+
+** You can't quit me
+   #+BEGIN_QUOTE
+   ^C^C^X^X^X^Xquit
+qQ!qdammit[esc]qwertyuiopasdfghjkl;
+:xwhat
+
+The Wizard translates: “We cannot get out! We cannot get out! They are coming!”
+   #+END_QUOTE
+
+   #+BEGIN_SRC emacs-lisp
+     (map!
+      (:leader
+	(:desc "quit" :prefix "q"
+	  :desc "restart" :n "r" 'restart-emacs
+	  :desc "quit" :n "q" 'evil-save-and-quit)))
+ 
    #+END_SRC
 
 ** Window Manipulation
