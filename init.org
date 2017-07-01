@@ -429,6 +429,13 @@ from the file into a source-specific file, in this case an =.el= file.
            '("~/code" "~/projects"))
    #+END_SRC
 
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-magit
+       :defer t
+       :config
+       (require 'evil-magit))
+   #+END_SRC
+
 * Lisp
   People who complain about the abundance of parenthesis in lisps miss the
   point. In over two years of working primarily with lisps full-time, the only
