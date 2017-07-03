@@ -429,13 +429,14 @@ from the file into a source-specific file, in this case an =.el= file.
            '("~/code" "~/projects"))
    #+END_SRC
 
+*** Evil for Magit
    #+BEGIN_SRC emacs-lisp
      (use-package evil-magit
        :defer t
        :config
        (require 'evil-magit))
    #+END_SRC
-
+ 
 * Lisp
   People who complain about the abundance of parenthesis in lisps miss the
   point. In over two years of working primarily with lisps full-time, the only
@@ -623,7 +624,7 @@ The Wizard translates: “We cannot get out! We cannot get out! They are coming!
      (use-package org-bullets
        :defer t
        :commands (org-bullets-mode)
-       :config
+       :init
        (setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
        (setq org-bullets-face-name 'org-bullet))
    #+END_SRC
