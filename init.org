@@ -639,23 +639,35 @@ The Wizard translates: “We cannot get out! We cannot get out! They are coming!
      (defun +org|init-keybinds ()
        "Initialize my org-mode keybindings." 
        (map! (:map org-mode-map
-               "RET" #'org-return-indent)
-             (:map org-mode-map
-               :nv "j" #'evil-next-visual-line
-               :nv "k" #'evil-previous-visual-line
+	       "RET" #'org-return-indent)
+	     (:map org-mode-map
+	       :nv "j" #'evil-next-visual-line
+	       :nv "k" #'evil-previous-visual-line
 
-               (:localleader
-                 :desc "edit special" :n "c" #'org-edit-special
-                 :desc "insert link" :n "l" #'org-insert-link
-                 (:desc "structure" :prefix "s"
-                   :desc "move subtree up" :n "k" #'org-move-subtree-up))))) 
-         
+	       (:leader
+		 (:desc "structural (org)" :prefix "k"
+		   :desc "nav/ parent" :nv "H" #'outline-up-heading
+		   :desc "mod/ promote subtree" :nv "H" #'org-promote-subtree
+		   :desc "nav/ previous visible heading" :nv "k" #'org-previous-visible-heading
+		   :desc "mod/ move subtree up" :nv "K" #'org-move-subtree-up
+		   :desc "nav/ next visible heading" :nv "j" #'org-next-visible-heading
+		   :desc "mod/ move subtree down" :nv "J" #'org-move-subtree-down
+		   :desc "mod/ demote subtree" :nv "L" #'org-demote-subtree
+		   ;; :desc "nav/ next header same level" :nv "n" #'org-forward-same-level
+		   :desc "mod/ promote current" :nv "N" #'org-do-promote
+		   ;; :desc "nav/ previous header same level" :nv "p" #'org-backward-same-level
+		   :desc "mod/ demote current" :nv "P" #'org-do-demote
+		   :desc "vis/ hoist subtree" :nv "h" #'org-narrow-to-subtree
+		   :desc "vis/ unhoist subtree" :nv "H" #'widen))
+
+	       (:localleader
+		 :desc "edit special" :n "c" #'org-edit-special
+		 :desc "insert heading after" :n "h" #'org-insert-heading-respect-content
+		 :desc "insert link" :nv "l" #'org-insert-link))))
    #+END_SRC
     
 *** Babel
-    
     One bit of sanity
-
   #+BEGIN_SRC emacs-lisp
     (defun +org|init-babel ()
       (setq org-src-window-setup 'current-window))
