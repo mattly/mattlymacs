@@ -575,6 +575,7 @@ from the file into a source-specific file, in this case an =.el= file.
        (add-hook 'org-mode-hook #'+org|init))
    #+END_SRC
 
+*** org-bullets
    Yeah so org-bullets is one of those eye candy things that actually makes it
    feel like you're not really using a forty-year old program. That counts
    for something.
@@ -592,9 +593,41 @@ from the file into a source-specific file, in this case an =.el= file.
        ;; (+org|init-keybinds)
        (org-bullets-mode 1))
    #+END_SRC
+
+*** minor-mode key bindings
+   #+BEGIN_SRC emacs-lisp
+     (evil-define-state org
+       "org state. Used to navigate and manipulate the org outline."
+       :tag " <OS> "
+       :suppress-keymap t
+       :cursor (bar . 2))
+
+     (defmacro evil-org-state-enter-command (command)
+       "Wrap COMMAND to call evil-org-state before executing COMMAND."
+       (let ((funcname (if (string-match "org-state-" (symbol-name command))
+			   (intern (format "evil-%s" command))
+			 (intern (format "evil-org-state-%s" command)))))
+	 `(progn
+	    (defun ,funcname ()
+	     (interactive)
+	     (evil-org-state)
+	     (call-interactively ',command))
+	    ',funcname)))
+
+     (defun evil-org-state/quit ()
+       "Quit org state and set state to normal."
+       (interactive)
+       (evil-normal-state))
+
+     (defun evil-org-state/init ()
+       "Initialize org state and display the keymap."
+       (interactive)
+       (evil-org-state))
+   #+END_SRC
    
    #+BEGIN_SRC emacs-lisp
-     (general-mmap
+     (general-define-key
+      :states '(normal visual operator)
       :keymaps 'org-mode-map
       "j" 'evil-next-visual-line
       "k" 'evil-previous-visual-line
@@ -605,28 +638,36 @@ from the file into a source-specific file, in this case an =.el= file.
       :states '(normal visual)
       :keymaps 'org-mode-map
       "c" '(org-edit-special :which-key "edit special")
-      "h" '(org-insert-heading-respect-content :which-key "insert heading after"))
+      "h" '(org-insert-heading-respect-content :which-key "insert heading after")
+      "H" '(org-insert-heading :which-key "insert heading here"))
+
+     (general-define-key
+      :prefix "SPC"
+      :states '(normal visual operator)
+      :keymaps 'org-mode-map
+      "k" '(evil-org-state/init :which-key "structure mode (org)"))
+
+     (general-define-key
+      :states '(org)
+      :keymaps 'org-mode-map
+      "M-x" '(counsel-M-x)
+      "ESC" '(evil-org-state/quit :which-key "quit to normal")
+      "h" '(outline-up-heading :which-key "go up heading")
+      "j" '(org-next-visible-heading :which-key "go next visible heading")
+      "k" '(org-previous-visible-heading :which-key "go prev visible heading")
+      ;; "l" '(outline-up-heading :which-key "") TODO write open heading & next-vis
+      "n" '(org-forward-same-level :which-key "go next sibling")
+      "p" '(org-backward-same-level :which-key "go prev sibling")
+      "H" '(org-promote-subtree :which-key "move subtree out (promote)")
+      "J" '(org-move-subtree-down :which-key "move subtree down")
+      "K" '(org-move-subtree-up :which-key "move subtree up")
+      "L" '(org-demote-subtree :which-key "move subtree in (demote)")
+      "N" '(org-do-promote :which-key "move header out (promote)")
+      "P" '(org-do-demote :which-key "move header in (demote)"))
 
      ;; (general-mmap
      ;;  :keymaps 'org-mode-map
-     ;;  :prefix main-leader-key
-     ;;  "k" '(:ignore t :which-key "structure (org)")
-     ;; 
-     ;; (general-mmap
-     ;;  :keymaps 'org-mode-map
      ;;  :prefix (concat main-leader-key " k")
-     ;;  "h" '(outline-up-heading :which-key "go up heading")
-     ;;  "j" '(org-next-visible-heading :which-key "go next visible heading")
-     ;;  "k" '(org-previous-visible-heading :which-key "go prev visible heading")
-     ;;  ;; "l" '(outline-up-heading :which-key "") TODO write open heading & next-vis
-     ;;  "n" '(org-forward-same-level :which-key "go next sibling")
-     ;;  "p" '(org-backward-same-level :which-key "go prev sibling")
-     ;;  "H" '(org-promote-subtree :which-key "move subtree out (promote)")
-     ;;  "J" '(org-move-subtree-down :which-key "move subtree down")
-     ;;  "K" '(org-move-subtree-up :which-key "move subtree up")
-     ;;  "L" '(org-demote-subtree :which-key "move subtree in (demote)")
-     ;;  "N" '(org-do-promote :which-key "move header out (promote)")
-     ;;  "P" '(org-do-demote :which-key "move header in (demote)")
 
    #+END_SRC
     
