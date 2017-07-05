@@ -473,128 +473,85 @@ from the file into a source-specific file, in this case an =.el= file.
   similar sort of pattern to file/buffer/window/etc commands as vim's grammar
   does to text manipulation. 
 
-** Easy Binding Macro
-  This keybinding macro is taken almost wholesale from [[https://github.com/hlissner/.emacs.d/blob/99ef794f9261df61f424cec9fbcffe3d54b0b355/core/core-keybinds.el][doom-emacs]]. Since it's not a
-  standalone, I had to copy it.
-  #+BEGIN_SRC emacs-lisp
-    (require 'keybinds (concat (expand-file-name user-emacs-directory) "keybinds"))
-    (setq doom-localleader-key ",")
-  #+END_SRC
+** General
+   #+BEGIN_SRC emacs-lisp
+     (use-package general
+       :commands (general-imap general-emap general-nmap general-vmap general-omap
+		  general-mmap general-rmap general-otomap general-itomap general-iemap
+		  general-nvmap general-tomap)
+       :config
+       (general-evil-setup t))
+   #+END_SRC
+
+** Menu System
+   #+BEGIN_SRC emacs-lisp
+     (defvar main-leader-key "SPC")
+     (defvar minor-mode-leader-key ",")
+   #+END_SRC 
   
-  
-** Help
-   One of the things that impressed me most about Emacs is the built-in help
-   system. While it's fairly easy to remember =C-x k= for =describe-key=, for
-   example, and while =which-key= makes it easy to discover the remainder of
-   the help functions, I'd prefer to put them under a leader binding.
-   
    #+BEGIN_SRC emacs-lisp 
-     (map!
-      :leader
-      (:desc "help" :prefix "h"
-        :desc "describe function" :n "f" #'counsel-describe-function
-        :desc "describe key" :n "k" #'describe-key
-        :desc "describe variable" :n "v" #'counsel-describe-variable))
+     (general-mmap
+      :prefix "SPC"
+      "" nil
+
+      "b" '(:ignore t :which-key "buffer")
+      "bb" '(buffer-menu :which-key "menu")
+      "bd" '(evil-delete-buffer :which-key "delete")
+      "bD" '(kill-buffer-and-window :which-key "delete & window")
+
+      "f" '(:ignore t :which-key "file")
+      "fD" '(delete-file :which-key "delete (any file)")
+      "ff" '(counsel-find-file :which-key "find file")
+      "fr" '(counsel-recentf :which-key "recent files")
+      "fR" '(rename-file :which-key "rename (any file)")
+      "fs" '(save-buffer :which-key "save")
+
+      "g" '(:ignore t :which-key "git")
+      "gb" '(magit-blame :which-key "blame")
+      "gf" '(counsel-git :which-key "find file")
+      "gg" '(counsel-git-grep :which-key "git grep")
+      "gs" '(magit-status :which-key "status")
+
+      "h" '(:ignore t :which-key "help")
+      "hf" '(counsel-describe-function :which-key "describe function")
+      "hF" '(counsel-describe-face :which-key "describe face")
+      "hk" '(describe-key :which-key "describe key")
+      "hv" '(counsel-describe-variable :which-key "describe variable")
+
+      "p" '(:ignore t :which-key "project")
+      "pf" '(projectile-find-file :which-key "find file")
+      "pp" '(projectile-switch-project :which-key "switch project")
+      "pr" '(projectile-recentf :which-key "recent files")
+      "px" '(projectile-invalidate-cache :which-key "invalidate cache")
+
+      "q" '(:ignore t :which-key "quit")
+      "qr" '(restart-emacs :which-key "restart")
+      "qq" '(evil-save-and-quit :which-key "quit and save")
+
+      "w" '(:ignore t :which-key "window")
+      "wh" '(evil-window-left :which-key "go left")
+      "wj" '(evil-window-down :which-key "go down")
+      "wk" '(evil-window-up :which-key "go up")
+      "wl" '(evil-window-right :which-key "go right")
+      "wH" '(evil-window-move-far-left :which-key "move far left")
+      "wJ" '(evil-window-move-very-bottom :which-key "move far bottom")
+      "wK" '(evil-window-move-very-top :which-key "move far top")
+      "wL" '(evil-window-move-far-right :which-key "move far right")
+      "ws" '(evil-window-split :which-key "split left")
+      "wv" '(evil-window-vsplit :which-key "split below")
+      "wd" '(evil-window-delete :which-key "delete")
+
+      "\\" '(:ignore t :which-key "config")
+      "\\r" '(mattly|reload-init :which-key "reload"))
    #+END_SRC
 
-** All Mode Mappings
+** Evil Motion (Normal, Visual, Operator) Mappings
   #+BEGIN_SRC emacs-lisp
-    (map!
-     :nvime "M-x" #'counsel-M-x)
-     ;; :nvime "M-x" #'smex)
+    (general-mmap
+     "M-x" 'counsel-M-x)
   #+END_SRC
    
-** Buffer Manipulation
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      :leader
-      (:desc "buffer" :prefix "b"
-        :desc "menu" :n "b" #'buffer-menu
-        :desc "delete" :n "d" #'evil-delete-buffer))
-   #+END_SRC
-  
-** File Manipulation
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      (:leader
-        (:desc "files" :prefix "f"
-          :desc "delete (any file)" :n "D" #'delete-file
-          :desc "find file" :n "f" #'counsel-find-file
-          :desc "recent file list" :n "r" #'recentf-open-files
-          :desc "rename (any file)" :n "R" #'rename-file
-          :desc "save" :n "s" #'save-buffer)))
-   #+END_SRC
    
-** Source Control (git)
-   
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      (:leader
-        (:desc "git" :prefix "g"
-          :desc "blame" :n "b" #'magit-blame
-          :desc "counsel" :n "c" 'counsel-git
-          :desc "counsel grep" :n "g" 'counsel-git-grep
-          :desc "status" :n "s" #'magit-status)))
-   #+END_SRC
-   
-** Project Management
-
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      (:leader
-        (:desc "project" :prefix "p"
-          :desc "find file" :n "f" #'projectile-find-file
-          :desc "switch project" :n "p" #'projectile-switch-project
-          :desc "recent files" :n "r" #'projectile-recentf
-          :desc "invalidate cache" :n "x" #'projectile-invalidate-cache))) 
-   #+END_SRC
-
-** You can't quit me
-   #+BEGIN_QUOTE
-   ^C^C^X^X^X^Xquit
-qQ!qdammit[esc]qwertyuiopasdfghjkl;
-:xwhat
-
-The Wizard translates: “We cannot get out! We cannot get out! They are coming!”
-   #+END_QUOTE
-
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      (:leader
-	(:desc "quit" :prefix "q"
-	  :desc "restart" :n "r" 'restart-emacs
-	  :desc "quit" :n "q" 'evil-save-and-quit)))
- 
-   #+END_SRC
-
-** Window Manipulation
-   
-   #+BEGIN_SRC emacs-lisp
-     (map!
-      (:leader
-        (:desc "window" :prefix "w"
-          ;; navigation
-          :desc "left" :n "h" #'evil-window-left
-          :desc "up" :n "k" #'evil-window-up
-          :desc "down" :n "j" #'evil-window-down
-          :desc "right" :n "l" #'evil-window-right
-          ;; opening
-          :desc "split below" :n "s" #'evil-window-split
-          :desc "split right" :n "v" #'evil-window-vsplit
-          ;; closing
-          :desc "delete" :n "d" #'evil-window-delete)))
-   #+END_SRC
-   
-** Config File
-   
-   #+BEGIN_SRC emacs-lisp
-  (map!
-   (:leader
-     (:desc "config" :prefix "\\"
-       :desc "reload config" :n "r" #'mattly|reload-init)))
-
-   #+END_SRC
-
 * Major Modes (file types, languages, etc)
 ** Elisp
 ** Org
@@ -626,42 +583,48 @@ The Wizard translates: “We cannot get out! We cannot get out! They are coming!
    
    #+BEGIN_SRC emacs-lisp
      (defun +org|init ()
-       (+org|init-keybinds)
+       ;; (+org|init-keybinds)
        (org-bullets-mode 1))
    #+END_SRC
    
    #+BEGIN_SRC emacs-lisp
-     (defun +org|init-keybinds ()
-       "Initialize my org-mode keybindings." 
-       (map! (:map org-mode-map
-	       "RET" #'org-return-indent)
-	     (:map org-mode-map
-	       :nv "j" #'evil-next-visual-line
-	       :nv "k" #'evil-previous-visual-line
+     (general-mmap
+      :keymaps 'org-mode-map
+      "j" 'evil-next-visual-line
+      "k" 'evil-previous-visual-line
+      "RET" 'org-return-indent)
 
-	       (:leader
-		 (:desc "structural (org)" :prefix "k"
-		   :desc "nav/ parent" :nv "H" #'outline-up-heading
-		   :desc "mod/ promote subtree" :nv "H" #'org-promote-subtree
-		   :desc "nav/ previous visible heading" :nv "k" #'org-previous-visible-heading
-		   :desc "mod/ move subtree up" :nv "K" #'org-move-subtree-up
-		   :desc "nav/ next visible heading" :nv "j" #'org-next-visible-heading
-		   :desc "mod/ move subtree down" :nv "J" #'org-move-subtree-down
-		   :desc "mod/ demote subtree" :nv "L" #'org-demote-subtree
-		   ;; :desc "nav/ next header same level" :nv "n" #'org-forward-same-level
-		   :desc "mod/ promote current" :nv "N" #'org-do-promote
-		   ;; :desc "nav/ previous header same level" :nv "p" #'org-backward-same-level
-		   :desc "mod/ demote current" :nv "P" #'org-do-demote
-		   :desc "vis/ hoist subtree" :nv "h" #'org-narrow-to-subtree
-		   :desc "vis/ unhoist subtree" :nv "H" #'widen))
+     (general-define-key
+      :prefix ","
+      :states '(normal visual)
+      :keymaps 'org-mode-map
+      "c" '(org-edit-special :which-key "edit special")
+      "h" '(org-insert-heading-respect-content :which-key "insert heading after"))
 
-	       (:localleader
-		 :desc "edit special" :n "c" #'org-edit-special
-		 :desc "insert heading after" :n "h" #'org-insert-heading-respect-content
-		 :desc "insert link" :nv "l" #'org-insert-link))))
+     ;; (general-mmap
+     ;;  :keymaps 'org-mode-map
+     ;;  :prefix main-leader-key
+     ;;  "k" '(:ignore t :which-key "structure (org)")
+     ;; 
+     ;; (general-mmap
+     ;;  :keymaps 'org-mode-map
+     ;;  :prefix (concat main-leader-key " k")
+     ;;  "h" '(outline-up-heading :which-key "go up heading")
+     ;;  "j" '(org-next-visible-heading :which-key "go next visible heading")
+     ;;  "k" '(org-previous-visible-heading :which-key "go prev visible heading")
+     ;;  ;; "l" '(outline-up-heading :which-key "") TODO write open heading & next-vis
+     ;;  "n" '(org-forward-same-level :which-key "go next sibling")
+     ;;  "p" '(org-backward-same-level :which-key "go prev sibling")
+     ;;  "H" '(org-promote-subtree :which-key "move subtree out (promote)")
+     ;;  "J" '(org-move-subtree-down :which-key "move subtree down")
+     ;;  "K" '(org-move-subtree-up :which-key "move subtree up")
+     ;;  "L" '(org-demote-subtree :which-key "move subtree in (demote)")
+     ;;  "N" '(org-do-promote :which-key "move header out (promote)")
+     ;;  "P" '(org-do-demote :which-key "move header in (demote)")
+
    #+END_SRC
     
-*** Babel
+*** org-babel
     One bit of sanity
   #+BEGIN_SRC emacs-lisp
     (defun +org|init-babel ()
