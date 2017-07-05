@@ -201,24 +201,19 @@ from the file into a source-specific file, in this case an =.el= file.
    
 ** Package Improvements
    
-*** smex
-    Smex shows various options for =M-x= commands. It's probably just a
-    temporary fling until I get around to installing counsel.
-   #+BEGIN_SRC emacs-lisp
-  (use-package smex
-    :config (smex-initialize))
-   #+END_SRC
-   
 *** which-key
     =which-key= might be one of the best new things in power-user interfaces to
     come along in years. Having all the commands in the word available at your
     fingertips is great, but without a good discoverability mechanism it doesn't
     do much good.
     #+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :commands (which-key-mode)
-    :config
-    (add-hook 'window-setup-hook #'which-key-mode))
+      (use-package which-key
+	:commands (which-key-mode)
+	:diminish t
+	:init (which-key-mode)
+	:config
+	(setq which-key-sort-order 'which-key-key-order-alpha
+	      which-key-idle-delay 0.05))
     #+END_SRC
     
 * User Interface
