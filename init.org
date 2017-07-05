@@ -359,9 +359,12 @@ from the file into a source-specific file, in this case an =.el= file.
 
      (use-package ivy
        :ensure t
+       :diminish t
+       :init (ivy-mode 1)
        :config
-       (progn
-	 (ivy-mode 1)))
+       (setq ivy-use-virtual-buffers t
+	     ivy-height 20
+	     ivy-count-format "(%d/%d) ")) 
 
      (use-package all-the-icons-ivy
        :config
