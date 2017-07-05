@@ -143,17 +143,17 @@ from the file into a source-specific file, in this case an =.el= file.
            inhibit-startup-echo-area-message user-login-name
            inhibit-default-init t
            initial-major-mode 'text-mode
-           initial-scratch-message nil)
+           initial-scratch-message "Welcome to mattlymacs")
    #+END_SRC
    
    Some variables are buffer-local, and sanity is achieved with =setq-default=:
    #+BEGIN_SRC emacs-lisp
-     (setq-default fill-column 79)  ; line-width for auto format, warnings, etc
+     (setq-default fill-column 80)  ; line-width for auto format, warnings, etc
    #+END_SRC
    
    I'm not a fan of Customize, or the noise it generates.
    #+BEGIN_SRC emacs-lisp
-     (setq custom-file "/dev/null")
+     (setq custom-file (concat user-emacs-directory "custom.el"))
      (load custom-file t)
    #+END_SRC
    
