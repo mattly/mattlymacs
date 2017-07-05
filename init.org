@@ -496,6 +496,9 @@ from the file into a source-specific file, in this case an =.el= file.
      (general-mmap
       :prefix "SPC"
       "" nil
+      "/" '(counsel-rg :which-key "search in project")
+      "TAB" '(ivy-switch-buffer :which-key "prev buffer")
+      "SPC" '(counsel-M-x :which-key "M-x")
 
       "b" '(:ignore t :which-key "buffer")
       "bb" '(buffer-menu :which-key "menu")
