@@ -10,8 +10,10 @@ documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** TODO Yaks to Shave:
 *** TODO org-mode
-**** TODO org keybindings for structural editing
 *** something for auto-closing quotes, etc
+*** TODO UI
+    set the font
+    text scale increase/decrease
 *** TODO lisp-mode, paredit, etc
 *** TODO Elisp Stuff
 *** TODO Clojure Mode
@@ -215,7 +217,14 @@ from the file into a source-specific file, in this case an =.el= file.
 	(setq which-key-sort-order 'which-key-key-order-alpha
 	      which-key-idle-delay 0.05))
     #+END_SRC
-    
+
+*** hydra
+    =hydra= is =which-key='s beautiful companion. There are some recipes to crib
+    on the [[https://github.com/abo-abo/hydra/wiki][wiki]].
+    #+BEGIN_SRC emacs-lisp
+      (use-package hydra)
+    #+END_SRC
+
 * User Interface
 ** Emacs Settings
   First, set some things
@@ -593,38 +602,23 @@ from the file into a source-specific file, in this case an =.el= file.
        ;; (+org|init-keybinds)
        (org-bullets-mode 1))
    #+END_SRC
+    
+*** org-babel
+    One bit of sanity
+  #+BEGIN_SRC emacs-lisp
+    (defun +org|init-babel ()
+      (setq org-src-window-setup 'current-window))
+
+    (add-hook 'org-mode-hook #'+org|init-babel)
+  #+END_SRC 
 
 *** minor-mode key bindings
-   #+BEGIN_SRC emacs-lisp
-     (evil-define-state org
-       "org state. Used to navigate and manipulate the org outline."
-       :tag " <OS> "
-       :suppress-keymap t
-       :cursor (bar . 2))
-
-     (defmacro evil-org-state-enter-command (command)
-       "Wrap COMMAND to call evil-org-state before executing COMMAND."
-       (let ((funcname (if (string-match "org-state-" (symbol-name command))
-			   (intern (format "evil-%s" command))
-			 (intern (format "evil-org-state-%s" command)))))
-	 `(progn
-	    (defun ,funcname ()
-	     (interactive)
-	     (evil-org-state)
-	     (call-interactively ',command))
-	    ',funcname)))
-
-     (defun evil-org-state/quit ()
-       "Quit org state and set state to normal."
-       (interactive)
-       (evil-normal-state))
-
-     (defun evil-org-state/init ()
-       "Initialize org state and display the keymap."
-       (interactive)
-       (evil-org-state))
-   #+END_SRC
-   
+    I was hoping to make an evil-mode similar to spacemacs' =evil-lisp-state=
+    but I couldn't figure out how to do it in a way that keeps =which-key= in
+    view the way spacemacs does. And, sadly, these operations aren't things I
+    have in muscle memory yet, and they won't ever get there without on-screen
+    reminders about which-keys I have to press. So, I'm using =hydra= for now,
+    which seems to be awesome in its own right.
    #+BEGIN_SRC emacs-lisp
      (general-define-key
       :states '(normal visual operator)
@@ -641,41 +635,34 @@ from the file into a source-specific file, in this case an =.el= file.
       "h" '(org-insert-heading-respect-content :which-key "insert heading after")
       "H" '(org-insert-heading :which-key "insert heading here"))
 
+     (defhydra mattly|hydra-org-structure (:color pink)
+       "
+     ^Nav^               ^Subtree^          ^Node^
+     ^^^^^^^^^-----------------------------------------------
+     _h_: up heading     _H_: promote       _N_: promote
+     _j_: next heading   _J_: move down     _P_: demote
+     _k_: prev heading   _K_: move up
+     _n_: next sibling   _L_: demote
+     _p_: prev sibling
+
+     "
+       ("h" outline-up-heading)
+       ("j" org-next-visible-heading)
+       ("k" org-previous-visible-heading)
+       ("n" org-forward-heading-same-level)
+       ("p" org-backward-heading-same-level)
+       ("H" org-promote-subtree)
+       ("J" org-move-subtree-down)
+       ("K" org-move-subtree-up)
+       ("L" org-demote-subtree)
+       ("N" org-do-promote)
+       ("P" org-do-demote)
+       ("q" nil "quit")
+       ("ESC" nil "quit"))
+
      (general-define-key
       :prefix "SPC"
       :states '(normal visual operator)
       :keymaps 'org-mode-map
-      "k" '(evil-org-state/init :which-key "structure mode (org)"))
-
-     (general-define-key
-      :states '(org)
-      :keymaps 'org-mode-map
-      "M-x" '(counsel-M-x)
-      "ESC" '(evil-org-state/quit :which-key "quit to normal")
-      "h" '(outline-up-heading :which-key "go up heading")
-      "j" '(org-next-visible-heading :which-key "go next visible heading")
-      "k" '(org-previous-visible-heading :which-key "go prev visible heading")
-      ;; "l" '(outline-up-heading :which-key "") TODO write open heading & next-vis
-      "n" '(org-forward-same-level :which-key "go next sibling")
-      "p" '(org-backward-same-level :which-key "go prev sibling")
-      "H" '(org-promote-subtree :which-key "move subtree out (promote)")
-      "J" '(org-move-subtree-down :which-key "move subtree down")
-      "K" '(org-move-subtree-up :which-key "move subtree up")
-      "L" '(org-demote-subtree :which-key "move subtree in (demote)")
-      "N" '(org-do-promote :which-key "move header out (promote)")
-      "P" '(org-do-demote :which-key "move header in (demote)"))
-
-     ;; (general-mmap
-     ;;  :keymaps 'org-mode-map
-     ;;  :prefix (concat main-leader-key " k")
-
-   #+END_SRC
-    
-*** org-babel
-    One bit of sanity
-  #+BEGIN_SRC emacs-lisp
-    (defun +org|init-babel ()
-      (setq org-src-window-setup 'current-window))
-
-    (add-hook 'org-mode-hook #'+org|init-babel)
-  #+END_SRC 
+      "k" '(mattly|hydra-org-structure/body :which-key "org structure")) ;;'(evil-org-state/init :which-key "structure mode (org)"))
+  #+END_SRC
