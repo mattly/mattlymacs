@@ -9,7 +9,6 @@ away from [[http://spacemacs.org][Spacemacs]] or [[https://github.com/hlissner/.
 documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** TODO Yaks to Shave:
-*** TODO org-mode
 *** something for auto-closing quotes, etc
 *** TODO UI
     set the font
@@ -202,7 +201,6 @@ from the file into a source-specific file, in this case an =.el= file.
    #+END_SRC
    
 ** Package Improvements
-   
 *** which-key
     =which-key= might be one of the best new things in power-user interfaces to
     come along in years. Having all the commands in the word available at your
@@ -215,7 +213,7 @@ from the file into a source-specific file, in this case an =.el= file.
 	:init (which-key-mode)
 	:config
 	(setq which-key-sort-order 'which-key-key-order-alpha
-	      which-key-idle-delay 0.05))
+	      which-key-idle-delay 0.25))
     #+END_SRC
 
 *** hydra
@@ -578,47 +576,55 @@ from the file into a source-specific file, in this case an =.el= file.
    I'm still not ready, so I use org-mode.
    #+BEGIN_SRC emacs-lisp
      (use-package org
-       :ensure t
+       :defer t
        :config
-       (setq org-src-window-setup 'current-window)
+       (setq org-src-window-setup 'other-window)
        (add-hook 'org-mode-hook #'+org|init))
    #+END_SRC
-
-*** org-bullets
-   Yeah so org-bullets is one of those eye candy things that actually makes it
-   feel like you're not really using a forty-year old program. That counts
-   for something.
-   #+BEGIN_SRC emacs-lisp
-     (use-package org-bullets
-       :defer t
-       :commands (org-bullets-mode)
-       :init
-       (setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
-       (setq org-bullets-face-name 'org-bullet))
-   #+END_SRC
+*** org packages
+**** org-bullets
+    Yeah so org-bullets is one of those eye candy things that actually makes it
+    feel like you're not really using a forty-year old program. That counts
+    for something.
+    #+BEGIN_SRC emacs-lisp
+      (use-package org-bullets
+	:defer t
+	:commands (org-bullets-mode)
+	:init
+	(setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
+	(setq org-bullets-face-name 'org-bullet))
+    #+END_SRC
    
-   #+BEGIN_SRC emacs-lisp
-     (defun +org|init ()
-       ;; (+org|init-keybinds)
-       (org-bullets-mode 1))
-   #+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (defun +org|init ()
+	;; (+org|init-keybinds)
+	(org-bullets-mode 1))
+    #+END_SRC
     
-*** org-babel
-    One bit of sanity
-  #+BEGIN_SRC emacs-lisp
-    (defun +org|init-babel ()
-      (setq org-src-window-setup 'current-window))
-
-    (add-hook 'org-mode-hook #'+org|init-babel)
-  #+END_SRC 
-
-*** minor-mode key bindings
+**** org-evil
+     =org-evil= defines some [[https://github.com/Somelauw/evil-org-mode/blob/master/doc/keythemes.org][useful key bindings]] and has some duplication with
+     the bindings I declare below, but it also has movement by element and
+     additional text objects like =e= for an object and =E= for an element.
+     #+BEGIN_SRC emacs-lisp
+       (use-package org-evil
+	 :defer t
+	 :diminish t
+	 :after org
+	 :config
+	 (add-hook 'org-mode-hook 'evil-org-mode)
+	 (add-hook 'evil-org-mode-hook
+	     (lambda () (evil-org-set-key-theme)))) 
+     #+END_SRC
+*** key bindings
     I was hoping to make an evil-mode similar to spacemacs' =evil-lisp-state=
     but I couldn't figure out how to do it in a way that keeps =which-key= in
     view the way spacemacs does. And, sadly, these operations aren't things I
     have in muscle memory yet, and they won't ever get there without on-screen
     reminders about which-keys I have to press. So, I'm using =hydra= for now,
     which seems to be awesome in its own right.
+
+    - bindings for table editing
+    
    #+BEGIN_SRC emacs-lisp
      (general-define-key
       :states '(normal visual operator)
@@ -632,8 +638,9 @@ from the file into a source-specific file, in this case an =.el= file.
       :states '(normal visual)
       :keymaps 'org-mode-map
       "c" '(org-edit-special :which-key "edit special")
+      "d" '(org-insert-drawer :which-key "insert drawer")
       "h" '(org-insert-heading-respect-content :which-key "insert heading after")
-      "H" '(org-insert-heading :which-key "insert heading here"))
+      "H" '(org-insert-subheading :which-key "insert subheading here"))
 
      (defhydra mattly|hydra-org-structure (:color pink)
        "
@@ -664,5 +671,12 @@ from the file into a source-specific file, in this case an =.el= file.
       :prefix "SPC"
       :states '(normal visual operator)
       :keymaps 'org-mode-map
-      "k" '(mattly|hydra-org-structure/body :which-key "org structure")) ;;'(evil-org-state/init :which-key "structure mode (org)"))
+      "k" '(mattly|hydra-org-structure/body :which-key "org structure"))
+
+     (general-define-key
+      :prefix ","
+      :states '(normal visual)
+      :keymaps 'org-src-mode-map
+      "c" '(org-edit-src-exit :which-key "save and exit")
+      "k" '(org-edit-src-abort :which-key "abort and exit"))
   #+END_SRC
