@@ -494,11 +494,13 @@ from the file into a source-specific file, in this case an =.el= file.
    #+END_SRC
 
 ** Menu System
+   First, define our leaders:
    #+BEGIN_SRC emacs-lisp
      (defvar main-leader-key "SPC")
      (defvar minor-mode-leader-key ",")
    #+END_SRC 
-  
+   
+   Then, Setup our under-main-leader keybindings:
    #+BEGIN_SRC emacs-lisp 
      (general-mmap
       :prefix "SPC"
@@ -578,8 +580,7 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package org
        :defer t
        :config
-       (setq org-src-window-setup 'other-window)
-       (add-hook 'org-mode-hook #'+org|init))
+       (+org|init-babel))
    #+END_SRC
 *** org packages
 **** org-bullets
@@ -600,7 +601,32 @@ from the file into a source-specific file, in this case an =.el= file.
 	;; (+org|init-keybinds)
 	(org-bullets-mode 1))
     #+END_SRC
-    
+**** org-babel
+     What languages do we want org to handle?
+     #+BEGIN_SRC emacs-lisp
+       (setq org-babel-load-languages '())
+       (defvar mattly|org-babel-load-languages
+	 '(emacs-lisp))
+     #+END_SRC
+
+     Babel is included with org, though apparently available as =ob= on the
+     (insecure) org repository. Instead of using =use-package= just configure it
+     in a function called by the org's =:config= option.
+     #+BEGIN_SRC emacs-lisp
+       (defun +org|init-babel ()
+	 (setq
+	  org-src-fontify-natively t
+	  org-src-tab-acts-natively t
+	  org-src-window-setup 'other-window)
+
+	 (org-babel-do-load-languages
+	  'org-babel-load-languages
+	  (mapcar (lambda (sym) (cons sym t)) mattly|org-babel-load-languages))
+
+	 (add-hook 'org-src-mode-hook
+	     (lambda () (when header-line-format (setq header-line-format nil)))))
+     #+END_SRC
+
 **** org-evil
      =org-evil= defines some [[https://github.com/Somelauw/evil-org-mode/blob/master/doc/keythemes.org][useful key bindings]] and has some duplication with
      the bindings I declare below, but it also has movement by element and
