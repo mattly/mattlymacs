@@ -358,7 +358,7 @@ from the file into a source-specific file, in this case an =.el= file.
    #+END_SRC
 
 
-** Counsel / Swiper / Ivy
+** Completion (Counsel, Ivy)
 
    #+BEGIN_SRC emacs-lisp
      (use-package counsel
@@ -378,12 +378,34 @@ from the file into a source-specific file, in this case an =.el= file.
        (all-the-icons-ivy-setup))
    #+END_SRC
 
-** Details
+** Pairings & Indentation
+*** Aggressive Indent
+    #+BEGIN_SRC emacs-lisp
+      (use-package aggressive-indent
+	:defer t
+	:config
+	(global-aggressive-indent-mode 1))
+    #+END_SRC
+*** SmartParens
+    #+BEGIN_SRC emacs-lisp
+      (use-package smartparens
+	:defer t
+	:commands (sp-split-sexp sp-newline sp-up-sexp)
+	:init
+	(setq sp-show-pair-delay 0.2
+	      sp-show-pair-from-inside t)
+	:config
+	(require 'smartparens-config)
+	(show-smartparens-global-mode +1)
+	(sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
+
+    #+END_SRC
+** Miscellany
    Handy package for easy-peasy restarts when you need them.
-#+BEGIN_SRC emacs-lisp
-  (use-package restart-emacs
-    :defer t)
-#+END_SRC
+   #+BEGIN_SRC emacs-lisp
+     (use-package restart-emacs
+       :defer t)
+    #+END_SRC
 
 * Project Management
   
@@ -577,7 +599,7 @@ from the file into a source-specific file, in this case an =.el= file.
    shell script. I failed because, well, I wasn't ready yet. Twelve years later,
    I'm still not ready, so I use org-mode.
    #+BEGIN_SRC emacs-lisp
-     (use-package org
+     (use-package org-plus-contrib
        :defer t
        :config
        (+org|init-babel))
@@ -614,10 +636,9 @@ from the file into a source-specific file, in this case an =.el= file.
      in a function called by the org's =:config= option.
      #+BEGIN_SRC emacs-lisp
        (defun +org|init-babel ()
-	 (setq
-	  org-src-fontify-natively t
-	  org-src-tab-acts-natively t
-	  org-src-window-setup 'other-window)
+	 (setq org-src-fontify-natively t
+	       org-src-tab-acts-natively t
+	       org-src-window-setup 'other-window)
 
 	 (org-babel-do-load-languages
 	  'org-babel-load-languages
