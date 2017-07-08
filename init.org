@@ -389,16 +389,20 @@ from the file into a source-specific file, in this case an =.el= file.
 *** SmartParens
     #+BEGIN_SRC emacs-lisp
       (use-package smartparens
-	:defer t
-	:commands (sp-split-sexp sp-newline sp-up-sexp)
-	:init
-	(setq sp-show-pair-delay 0.2
-	      sp-show-pair-from-inside t)
-	:config
-	(require 'smartparens-config)
-	(show-smartparens-global-mode +1)
-	(sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
+        :defer t
+        :commands (sp-split-sexp sp-newline sp-up-sexp)
+        :init
+        (setq sp-show-pair-delay 0.2
+              sp-show-pair-from-inside t)
+        :config
+        (require 'smartparens-config)
+        (show-smartparens-global-mode +1)
+        (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
 
+    #+END_SRC
+*** Whitespace
+    #+BEGIN_SRC emacs-lisp
+      (setq indent-tabs-mode nil)
     #+END_SRC
 ** Miscellany
    Handy package for easy-peasy restarts when you need them.
