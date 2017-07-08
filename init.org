@@ -644,7 +644,8 @@ from the file into a source-specific file, in this case an =.el= file.
 ** Evil Motion (Normal, Visual, Operator) Mappings
   #+BEGIN_SRC emacs-lisp
     (general-mmap
-     "M-x" 'counsel-M-x)
+     "M-x" 'counsel-M-x
+     "TAB" 'origami-recursively-toggle-node)
   #+END_SRC
    
    
