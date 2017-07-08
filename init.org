@@ -72,12 +72,6 @@ from the file into a source-specific file, in this case an =.el= file.
   (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (defun mattly|reload-init ()
-    (interactive)
-    (load-file "init.el"))
-#+END_SRC
-
 * Bootstrapping Package Management
   The =package= package is included with Emacs 24 and newer. Tell it where to
   find packages, and initialize it.
@@ -198,6 +192,13 @@ from the file into a source-specific file, in this case an =.el= file.
        (run-hooks 'mattlymacs-init-hook))   
 
      (add-hook 'emacs-startup-hook #'mattly|initialize)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (defun mattly|reload-init ()
+       (interactive)
+       (load-file "init.el")
+       (mattly|initialize))
    #+END_SRC
    
 ** Package Improvements
@@ -660,11 +661,20 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package org-plus-contrib
        :defer t
        :config
+       (add-hook 'org-load-hook #'+org|load)
        (add-hook 'org-mode-hook #'+org|init))
 
      (defun +org|init ()
+       (add-hook 'mattlymacs-init-hook #'+org|init)
        (+org|init-babel)
        (org-bullets-mode))
+
+     (defun +org|load ()
+       (sp-with-modes '(org-mode)
+         (sp-local-pair "\\[" "\\]" :post-handlers '(("|" "SPC")))
+         (sp-local-pair "\\(" "\\)" :post-handlers '(("|" "SPC")))
+         (sp-local-pair "$$" "$$" :post-handlers '((:add " | ")) :unless '(sp-point-at-bol-p))
+         (sp-local-pair "{" nil)))
    #+END_SRC
 *** org packages
 **** org-bullets
