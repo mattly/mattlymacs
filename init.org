@@ -615,7 +615,8 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package org-plus-contrib
        :defer t
        :config
-       (+org|init-babel))
+       (+org|init-babel)
+       (org-bullets-mode))
    #+END_SRC
 *** org packages
 **** org-bullets
