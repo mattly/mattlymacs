@@ -378,13 +378,14 @@ from the file into a source-specific file, in this case an =.el= file.
        (all-the-icons-ivy-setup))
    #+END_SRC
 
-** Pairings & Indentation
-*** Aggressive Indent
+** Textual Trimmings - Whitespace, Pairs, Folding
+*** Folding
     #+BEGIN_SRC emacs-lisp
-      (use-package aggressive-indent
-	:defer t
-	:config
-	(global-aggressive-indent-mode 1))
+      (use-package origami
+        :defer t
+        :config
+        (setq origami-show-fold-header t)
+        (global-origami-mode))
     #+END_SRC
 *** SmartParens
     #+BEGIN_SRC emacs-lisp
@@ -591,8 +592,45 @@ from the file into a source-specific file, in this case an =.el= file.
       "wv" '(evil-window-vsplit :which-key "split below")
       "wd" '(evil-window-delete :which-key "delete")
 
+      ;; "y" '(:ignore t :which-key "fold")
+      "y" '(mattly|folding/body :which-key "folding")
+      ;; "ya" '(origami-forward-toggle-node :which-key "toggle-at-point")
+      ;; "yA" '(origami-toggle-all-nodes :which-key "toggle ALL") 
+      ;; "yc" '(origami-close-node :which-key "close at point")
+      ;; "yC" '(origami-close-node-recursively :which-key "close recursively")
+      ;; "yo" '(origami-open-node :which-key "open at point")
+      ;; "yO" '(origami-open-node-recursively :which-key "open recursively")
+      ;; "ym" '(origami-open-all-nodes :which-key "open ALL")
+      ;; "yr" '(origami-close-all-nodes :which-key "close ALL")
+      ;; "yp" '(origami-previous-fold :which-key "goto previous")
+      ;; "yn" '(origami-next-fold :which-key "goto next")
+
       "\\" '(:ignore t :which-key "config")
       "\\r" '(mattly|reload-init :which-key "reload"))
+
+     (defhydra mattly|folding (:color pink)
+       "
+     Close^^          Open^^           Toggle^^        Goto^^
+     -----^^--------- ----^^---------- ------^^------- ----^^----
+     _c_: at point    _o_: at point    _a_: at point   _n_: next
+     _C_: recursively _O_: recursively _A_: all        _p_: previous
+     _m_: all         _r_: all         _TAB_: like org
+     "
+       ("c" origami-close-node)
+       ("C" origami-close-node-recursively)
+       ("m" origami-close-all-nodes)
+       ("o" origami-open-node)
+       ("O" origami-open-node-recursively)
+       ("a" origami-forward-toggle-node)
+       ("r" origami-open-all-nodes)
+       ("A" origami-toggle-all-nodes)
+       ("TAB" origami-recursively-toggle-node)
+       ("<tab>" origami-recursively-toggle-node)
+       ("n" origami-next-fold)
+       ("p" origami-previous-fold)
+       ("q" nil :exit t)
+       ("C-g" nil :exit t)
+       ("<SPC>" nil :exit t))
    #+END_SRC
 
 ** Evil Motion (Normal, Visual, Operator) Mappings
