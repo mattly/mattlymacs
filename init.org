@@ -653,6 +653,9 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package org-plus-contrib
        :defer t
        :config
+       (add-hook 'org-mode-hook #'+org|init))
+
+     (defun +org|init ()
        (+org|init-babel)
        (org-bullets-mode))
    #+END_SRC
@@ -670,17 +673,12 @@ from the file into a source-specific file, in this case an =.el= file.
 	(setq org-bullets-face-name 'org-bullet))
     #+END_SRC
    
-    #+BEGIN_SRC emacs-lisp
-      (defun +org|init ()
-	;; (+org|init-keybinds)
-	(org-bullets-mode 1))
-    #+END_SRC
 **** org-babel
      What languages do we want org to handle?
      #+BEGIN_SRC emacs-lisp
        (setq org-babel-load-languages '())
        (defvar mattly|org-babel-load-languages
-	 '(emacs-lisp))
+         '(emacs-lisp))
      #+END_SRC
 
      Babel is included with org, though apparently available as =ob= on the
@@ -688,16 +686,16 @@ from the file into a source-specific file, in this case an =.el= file.
      in a function called by the org's =:config= option.
      #+BEGIN_SRC emacs-lisp
        (defun +org|init-babel ()
-	 (setq org-src-fontify-natively t
-	       org-src-tab-acts-natively t
-	       org-src-window-setup 'other-window)
+         (setq org-src-fontify-natively t
+               org-src-tab-acts-natively t
+               org-src-window-setup 'other-window)
 
-	 (org-babel-do-load-languages
-	  'org-babel-load-languages
-	  (mapcar (lambda (sym) (cons sym t)) mattly|org-babel-load-languages))
+         (org-babel-do-load-languages
+          'org-babel-load-languages
+          (mapcar (lambda (sym) (cons sym t)) mattly|org-babel-load-languages))
 
-	 (add-hook 'org-src-mode-hook
-	     (lambda () (when header-line-format (setq header-line-format nil)))))
+         (add-hook 'org-src-mode-hook
+                   (lambda () (when header-line-format (setq header-line-format nil)))))
      #+END_SRC
 
 **** org-evil
