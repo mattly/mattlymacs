@@ -1,0 +1,7 @@
+*.elc
+*~
+custom.el
+init.el
+recentf
+cache/*
+elpa/*
