@@ -569,6 +569,9 @@ from the file into a source-specific file, in this case an =.el= file.
       "qr" '(restart-emacs :which-key "restart")
       "qq" '(evil-save-and-quit :which-key "quit and save")
 
+      "t" '(:ignore t :which-key "toggle")
+      "tw" '(whitespace-mode :which-key "whitespace")
+
       "w" '(:ignore t :which-key "window")
       "wh" '(evil-window-left :which-key "go left")
       "wj" '(evil-window-down :which-key "go down")
