@@ -9,14 +9,14 @@ away from [[http://spacemacs.org][Spacemacs]] or [[https://github.com/hlissner/.
 documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** TODO Yaks to Shave:
-*** something for auto-closing quotes, etc
 *** TODO UI
     set the font
     text scale increase/decrease
 *** TODO lisp-mode, paredit, etc
 *** TODO Elisp Stuff
 *** TODO Clojure Mode
-
+*** String Inflections. 
+    use =string-inflection= package, see spacemacs-editing
 
 ** On Emacs vs. Vim, and Evil mode vs. Holy mode.
 
@@ -411,6 +411,14 @@ from the file into a source-specific file, in this case an =.el= file.
     #+BEGIN_SRC emacs-lisp
       (setq-default indent-tabs-mode nil)
     #+END_SRC
+
+** Text Manipulation
+   kebab-case is the one true case. kebab-case loves you. Every other case hates
+   you and wants you to suffer RSI.
+   #+BEGIN_SRC emacs-lisp
+     (use-package string-inflection
+       :defer t)
+   #+END_SRC
 ** Miscellany
    Handy package for easy-peasy restarts when you need them.
    #+BEGIN_SRC emacs-lisp
@@ -591,6 +599,16 @@ from the file into a source-specific file, in this case an =.el= file.
       "w s" '(evil-window-split :which-key "split left")
       "w v" '(evil-window-vsplit :which-key "split below")
       "w d" '(evil-window-delete :which-key "delete")
+
+      "x" '(:ignore t :which-key "text")
+      "x i" '(:ignore t :which-key "inflection")
+      "x i c" '(string-inflection-lower-camelcase :which-key "camelCase")
+      "x i C" '(string-inflection-camelcase :which-key "CamelCase")
+      "x i -" '(string-inflection-kebab-case :which-key "kebab-case")
+      "x i k" '(string-inflection-kebab-case :which-key "kebab-case")
+      "x i _" '(string-inflection-underscore :which-key "under_score") ;; you hate me
+      "x i u" '(string-inflection-underscore :which-key "under_score") ;; why do you hate me?
+      "x i U" '(string-inflection-upcase :which-key "UP_CASE") ;; oh right you think `-` is math because you have a crap parser.
 
       "z" '(mattly|folding/body :which-key "folding")
 
