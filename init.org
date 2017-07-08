@@ -396,13 +396,19 @@ from the file into a source-specific file, in this case an =.el= file.
               sp-show-pair-from-inside t)
         :config
         (require 'smartparens-config)
-        (show-smartparens-global-mode +1)
-        (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
+        (add-hook 'prog-mode-hook #'smartparens-strict-mode))
+      ;; (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
+    #+END_SRC
 
+    #+BEGIN_SRC emacs-lisp
+      (use-package evil-smartparens
+	:defer t
+	:config
+	(add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
     #+END_SRC
 *** Whitespace
     #+BEGIN_SRC emacs-lisp
-      (setq indent-tabs-mode nil)
+      (setq-default indent-tabs-mode nil)
     #+END_SRC
 ** Miscellany
    Handy package for easy-peasy restarts when you need them.
