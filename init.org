@@ -492,11 +492,30 @@ simply can't do in vim. Spacemacs nailed this.
         :defer t)
     #+END_SRC
 ** Miscellany
-   Handy package for easy-peasy restarts when you need them.
-   #+BEGIN_SRC emacs-lisp
-     (use-package restart-emacs
-       :defer t)
+*** $EDITOR for child processes
+    #+BEGIN_SRC emacs-lisp
+      (use-package with-editor
+        :defer t)
+
+      (bind-mode-menu
+       :keymaps 'with-editor-mode-map
+       "," '(with-editor-finish :which-key "finish")
+       "a" '(with-editor-cancel :which-key "cancel")
+       "c" '(with-editor-finish :which-key "finish")
+       "k" '(with-editor-cancel :which-key "cancel"))
     #+END_SRC
+*** Fill Column Indicator
+    #+BEGIN_SRC emacs-lisp
+      (use-package fill-column-indicator
+        :defer t
+        :commands (fci-mode))
+    #+END_SRC
+*** Restarting
+    Handy package for easy-peasy restarts when you need them.
+    #+BEGIN_SRC emacs-lisp
+      (use-package restart-emacs
+        :defer t)
+     #+END_SRC
 
 * Project Management
   
