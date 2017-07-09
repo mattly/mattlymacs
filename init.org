@@ -9,15 +9,14 @@ away from [[http://spacemacs.org][Spacemacs]] or [[https://github.com/hlissner/.
 documenting my config in Org in a /literate/ fashion seems like the way to go.
 
 ** TODO Yaks to Shave:
+*** Emacs management
+    - Update package
+    - remove unneded packages
 *** TODO UI
     set the font
-    text scale increase/decrease
 *** TODO lisp-mode, paredit, etc
 *** TODO Elisp Stuff
 *** TODO Clojure Mode
-*** String Inflections. 
-    use =string-inflection= package, see spacemacs-editing
-
 ** On Emacs vs. Vim, and Evil mode vs. Holy mode.
 
 Years ago, I used vim. I wrote code mostly in dynamically-typed,
