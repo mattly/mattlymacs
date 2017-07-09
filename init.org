@@ -379,7 +379,7 @@ from the file into a source-specific file, in this case an =.el= file.
        (all-the-icons-ivy-setup))
    #+END_SRC
 
-** Textual Trimmings - Whitespace, Pairs, Folding
+** Text Manipulation
 *** Folding
     #+BEGIN_SRC emacs-lisp
       (use-package origami
@@ -394,32 +394,42 @@ from the file into a source-specific file, in this case an =.el= file.
         :defer t
         :commands (sp-split-sexp sp-newline sp-up-sexp)
         :init
-        (setq sp-show-pair-delay 0.2
+        (setq sp-autowrap-region nil ; let others handle this
+              sp-highlight-pair-overlay t
+              sp-cancel-autoskip-on-backward-movement nil
+              sp-show-pair-delay 0.2
               sp-show-pair-from-inside t)
         :config
         (require 'smartparens-config)
-        (add-hook 'prog-mode-hook #'smartparens-strict-mode))
-      ;; (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
-    #+END_SRC
+        (add-hook 'prog-mode-hook #'smartparens-mode)
+        ;; sp interferes with replace-mode
+        (add-hook 'evil-replace-state-entry-hook #'turn-off-smartparens-mode)
+        (add-hook 'evil-replace-state-exit-hook #'turn-on-smartparens-mode)
 
-    #+BEGIN_SRC emacs-lisp
-      (use-package evil-smartparens
-	:defer t
-	:config
-	(add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
+        (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
     #+END_SRC
 *** Whitespace
     #+BEGIN_SRC emacs-lisp
-      (setq-default indent-tabs-mode nil)
+      (setq-default indent-tabs-mode nil
+                    whitespace-mode nil
+                    require-final-newline nil)
+
+      (use-package ethan-wspace
+        :defer t
+        :config
+        (global-ethan-wspace-mode 1))
     #+END_SRC
 
-** Text Manipulation
-   kebab-case is the one true case. kebab-case loves you. Every other case hates
-   you and wants you to suffer RSI.
-   #+BEGIN_SRC emacs-lisp
-     (use-package string-inflection
-       :defer t)
-   #+END_SRC
+*** Delimiters
+    #+BEGIN_SRC emacs-lisp
+    #+END_SRC
+*** Inflections
+    kebab-case is the one true case. kebab-case loves you. Every other case hates
+    you and wants you to suffer RSI.
+    #+BEGIN_SRC emacs-lisp
+      (use-package string-inflection
+        :defer t)
+    #+END_SRC
 ** Miscellany
    Handy package for easy-peasy restarts when you need them.
    #+BEGIN_SRC emacs-lisp
@@ -465,23 +475,17 @@ from the file into a source-specific file, in this case an =.el= file.
    git's poor user interface.
    #+BEGIN_SRC emacs-lisp
      (use-package magit
-       :commands (magit-status magit-list-repositories))
-   #+END_SRC
-   
-   I'm not yet using =magit-list-repositories= regularly, but in the meantime
-   it's a nice alternative to what spacemacs has in "list projects"
-
-   #+BEGIN_SRC emacs-lisp
-     (setq magit-repository-directories
-           '("~/code" "~/projects"))
+       :commands (magit-status magit-list-repositories)
+       :config
+       (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1))
    #+END_SRC
 
 *** Evil for Magit
    #+BEGIN_SRC emacs-lisp
      (use-package evil-magit
-       :defer t
-       :config
-       (require 'evil-magit))
+       :init
+       (with-eval-after-load 'magit
+         (require 'evil-magit)))
    #+END_SRC
  
 * Lisp
