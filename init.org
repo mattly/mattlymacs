@@ -302,6 +302,20 @@ simply can't do in vim. Spacemacs nailed this.
          ;; (osx-clipboard-mode +1)))
    #+END_SRC
 
+** Font
+   Iosevka is really nice.
+   #+BEGIN_SRC emacs-lisp
+     (defvar mattly-font "Iosevka Light 14")
+     (set-face-attribute 'default nil :font mattly-font)
+     (set-frame-font mattly-font nil t)
+   #+END_SRC
+  
+*** Text Scaling
+    #+BEGIN_SRC emacs-lisp
+      (use-package zoom-frm
+        :defer t
+        :commands (zoom-in zoom-out zoom-in/out zoom-frm-unzoom))
+    #+END_SRC
 ** Theme
    Eventually I'm going to publish this theme.
    #+BEGIN_SRC emacs-lisp
@@ -638,8 +652,8 @@ simply can't do in vim. Spacemacs nailed this.
      (bind-at-rest
       "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
       "/" '(swiper :which-key "swiper")
-      "M-=" '(text-scale-increase :which-key "zoom in")
-      "M--" '(text-scale-decrease :which-key "zoom out")
+      "M-=" '(zoom-in :which-key "zoom in")
+      "M--" '(zoom-out :which-key "zoom out")
       "M-x" '(counsel-M-x :which-key "counsel-M-x"))
    #+END_SRC
 
@@ -743,6 +757,14 @@ simply can't do in vim. Spacemacs nailed this.
        "t" '(mattly-toggles/body :which-key "toggles"))
     #+END_SRC
 
+*** u is for User Interface
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "u"
+       "-" '(zoom-out :which-key "zoom out")
+       "=" '(zoom-in :which-key "zoom in")
+       "0" '(zoom-frm-unzoom :which-key "zoom reset"))
+    #+END_SRC
 *** w is for Windows
     The vim/emacs notion of a window, that is. What you'd call a "pane" or
     "split" in a more modern program.
