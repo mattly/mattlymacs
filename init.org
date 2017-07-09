@@ -533,6 +533,7 @@ simply can't do in vim. Spacemacs nailed this.
        :init
        (setq
         projectile-cache-file (concat mattlymacs-cache-dir "projectile.cache")
+        projectile-completion-system 'ivy
         projectile-enable-caching (not noninteractive)
         projectile-globally-ignored-directories `(,mattlymacs-local-dir ".sync")
         projectile-globally-ignored-file-suffixes '(".elc")
@@ -556,7 +557,8 @@ simply can't do in vim. Spacemacs nailed this.
      (use-package magit
        :commands (magit-status magit-list-repositories)
        :config
-       (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1))
+       (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1
+             magit-completing-read-function 'ivy-completing-read))
    #+END_SRC
 
 *** Evil for Magit
@@ -648,7 +650,7 @@ simply can't do in vim. Spacemacs nailed this.
 *** Top-Level
     #+BEGIN_SRC emacs-lisp
       (bind-main-menu
-       "/" '(counsel-rg :which-key "search in project")
+       "/" '(counsel-rg :which-key "search in current directory")
        "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
        "SPC" '(counsel-M-x :which-key "M-x"))
     #+END_SRC
