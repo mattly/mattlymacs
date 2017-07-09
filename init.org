@@ -554,7 +554,6 @@ simply can't do in vim. Spacemacs nailed this.
         projectile-globally-ignored-files '(".DS_Store")
         projectile-indexing-method 'alien
         projectile-known-projects-file (concat mattlymacs-cache-dir "projectile.projects")
-        projectile-require-project-root nil
         projectile-project-root-files
         '(".git" ".hg" ".project" "package.json"))
        :config
@@ -674,7 +673,7 @@ simply can't do in vim. Spacemacs nailed this.
       (bind-main-menu
        :infix "b"
        "" '(:ignore t :which-key "buffer")
-       "b" '(buffer-menu :which-key "menu")
+       "b" '(ivy-switch-buffer :which-key "switch")
        "d" '(evil-delete-buffer :which-key "delete")
        "D" '(kill-buffer-and-window :which-key "delete buffer & window"))
     #+END_SRC
@@ -721,6 +720,7 @@ simply can't do in vim. Spacemacs nailed this.
       (bind-main-menu
        :infix "p"
        "" '(:ignore t :which-key "project")
+       "b" '(projectile-switch-to-buffer :which-key "switch buffer")
        "f" '(projectile-find-file :which-key "find file")
        "p" '(projectile-switch-project :which-key "switch project")
        "r" '(projectile-recentf :which-key "recent files")
