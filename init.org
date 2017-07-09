@@ -560,77 +560,111 @@ simply can't do in vim. Spacemacs nailed this.
    
    Then, Setup our under-main-leader keybindings:
    #+BEGIN_SRC emacs-lisp 
-     (general-mmap
-      :prefix "SPC"
-      "" nil
+     (general-create-definer leader-menu
+                             :prefix "SPC"
+                             :keymaps 'global
+                             :states '(normal visual operator)
+                             :non-normal-prefix "M-SPC")
+
+     (leader-menu
       "/" '(counsel-rg :which-key "search in project")
-      "TAB" '(ivy-switch-buffer :which-key "prev buffer")
-      "SPC" '(counsel-M-x :which-key "M-x")
+      "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
+      "SPC" '(counsel-M-x :which-key "M-x"))
 
-      "b" '(:ignore t :which-key "buffer")
-      "b b" '(buffer-menu :which-key "menu")
-      "b d" '(evil-delete-buffer :which-key "delete")
-      "b D" '(kill-buffer-and-window :which-key "delete & window")
+     (leader-menu
+      :infix "b"
+      "" '(:ignore t :which-key "buffer")
+      "b" '(buffer-menu :which-key "menu")
+      "d" '(evil-delete-buffer :which-key "delete")
+      "D" '(kill-buffer-and-window :which-key "delete buffer & window"))
 
-      "f" '(:ignore t :which-key "file")
-      "f D" '(delete-file :which-key "delete (any file)")
-      "f f" '(counsel-find-file :which-key "find file")
-      "f r" '(counsel-recentf :which-key "recent files")
-      "f R" '(rename-file :which-key "rename (any file)")
-      "f s" '(save-buffer :which-key "save")
+     (leader-menu
+      :infix "f"
+      "" '(:ignore t :which-key "file")
+      "D" '(delete-file :which-key "delete (any file)")
+      "f" '(counsel-find-file :which-key "find file")
+      "r" '(counsel-recentf :which-key "recent files")
+      "R" '(rename-file :which-key "rename (any file)")
+      "s" '(save-buffer :which-key "save"))
 
-      "g" '(:ignore t :which-key "git")
-      "g b" '(magit-blame :which-key "blame")
-      "g f" '(counsel-git :which-key "find file")
-      "g g" '(counsel-git-grep :which-key "git grep")
-      "g s" '(magit-status :which-key "status")
+     (leader-menu
+      :infix "g"
+      "" '(:ignore t :which-key "git")
+      "b" '(magit-blame :which-key "blame")
+      "f" '(counsel-git :which-key "find file")
+      "g" '(counsel-git-grep :which-key "git grep")
+      "s" '(magit-status :which-key "status"))
 
-      "h" '(:ignore t :which-key "help")
-      "h f" '(counsel-describe-function :which-key "describe function")
-      "h F" '(counsel-describe-face :which-key "describe face")
-      "h k" '(describe-key :which-key "describe key")
-      "h v" '(counsel-describe-variable :which-key "describe variable")
+     (leader-menu
+      :infix "h"
+      "" '(:ignore t :which-key "help")
+      "f" '(counsel-describe-function :which-key "describe function")
+      "F" '(counsel-describe-face :which-key "describe face")
+      "k" '(describe-key :which-key "describe key")
+      "v" '(counsel-describe-variable :which-key "describe variable"))
 
-      "p" '(:ignore t :which-key "project")
-      "p f" '(projectile-find-file :which-key "find file")
-      "p p" '(projectile-switch-project :which-key "switch project")
-      "p r" '(projectile-recentf :which-key "recent files")
-      "p x" '(projectile-invalidate-cache :which-key "invalidate cache")
+     (leader-menu
+      :infix "p"
+      "" '(:ignore t :which-key "project")
+      "f" '(projectile-find-file :which-key "find file")
+      "p" '(projectile-switch-project :which-key "switch project")
+      "r" '(projectile-recentf :which-key "recent files")
+      "x" '(projectile-invalidate-cache :which-key "invalidate cache"))
 
-      "q" '(:ignore t :which-key "quit")
-      "q r" '(restart-emacs :which-key "restart")
-      "q q" '(evil-save-and-quit :which-key "quit and save")
+     (leader-menu
+      :infix "q"
+      "" '(:ignore t :which-key "quit")
+      "r" '(restart-emacs :which-key "restart")
+      "q" '(evil-save-and-quit :which-key "quit and save"))
 
-      "t" '(:ignore t :which-key "toggle")
-      "t w" '(whitespace-mode :which-key "whitespace")
+     (defhydra mattly-toggles (:color pink)
+       "
+     _f_ auto-fill-mode %`auto-fill-function
+     _w_ whitespace-mode %`whitespace-mode
+     "
+       ("f" auto-fill-mode nil)
+       ("w" whitespace-mode nil)
+       ("q" nil "cancel"))
 
-      "w" '(:ignore t :which-key "window")
-      "w h" '(evil-window-left :which-key "go left")
-      "w j" '(evil-window-down :which-key "go down")
-      "w k" '(evil-window-up :which-key "go up")
-      "w l" '(evil-window-right :which-key "go right")
-      "w H" '(evil-window-move-far-left :which-key "move far left")
-      "w J" '(evil-window-move-very-bottom :which-key "move far bottom")
-      "w K" '(evil-window-move-very-top :which-key "move far top")
-      "w L" '(evil-window-move-far-right :which-key "move far right")
-      "w s" '(evil-window-split :which-key "split left")
-      "w v" '(evil-window-vsplit :which-key "split below")
-      "w d" '(evil-window-delete :which-key "delete")
+     (leader-menu
+      "t" '(mattly-toggles/body :which-key "toggles"))
 
-      "x" '(:ignore t :which-key "text")
-      "x i" '(:ignore t :which-key "inflection")
-      "x i c" '(string-inflection-lower-camelcase :which-key "camelCase")
-      "x i C" '(string-inflection-camelcase :which-key "CamelCase")
-      "x i -" '(string-inflection-kebab-case :which-key "kebab-case")
-      "x i k" '(string-inflection-kebab-case :which-key "kebab-case")
-      "x i _" '(string-inflection-underscore :which-key "under_score") ;; you hate me
-      "x i u" '(string-inflection-underscore :which-key "under_score") ;; why do you hate me?
-      "x i U" '(string-inflection-upcase :which-key "UP_CASE") ;; oh right you think `-` is math because you have a crap parser.
+     (leader-menu
+      :infix "w"
+      "" '(:ignore t :which-key "window")
+      "h" '(evil-window-left :which-key "go left")
+      "j" '(evil-window-down :which-key "go down")
+      "k" '(evil-window-up :which-key "go up")
+      "l" '(evil-window-right :which-key "go right")
+      "m" '(:ignore t :which-key "move")
+      "m h" '(evil-window-move-far-left :which-key "far left")
+      "m j" '(evil-window-move-very-bottom :which-key "far bottom")
+      "m k" '(evil-window-move-very-top :which-key "far top")
+      "m l" '(evil-window-move-far-right :which-key "far right")
+      "s" '(evil-window-split :which-key "split left")
+      "v" '(evil-window-vsplit :which-key "split below")
+      "d" '(evil-window-delete :which-key "delete"))
 
-      "z" '(mattly|folding/body :which-key "folding")
+     (leader-menu
+      :infix "x"
+      "" '(:ignore t :which-key "text")
+      "i" '(:ignore t :which-key "inflection")
+      "i c" '(string-inflection-lower-camelcase :which-key "camelCase")
+      "i C" '(string-inflection-camelcase :which-key "CamelCase")
+      "i -" '(string-inflection-kebab-case :which-key "kebab-case")
+      "i k" '(string-inflection-kebab-case :which-key "kebab-case")
+      "i _" '(string-inflection-underscore :which-key "under_score") ;; you hate me
+      "i u" '(string-inflection-underscore :which-key "under_score") ;; why do you hate me?
+      "i U" '(string-inflection-upcase :which-key "UP_CASE")) ;; oh right you think `-` is math because you have a crap parser.
 
-      "\\" '(:ignore t :which-key "config")
-      "\\r" '(mattly|reload-init :which-key "reload"))
+     (leader-menu
+      "z" '(mattly|folding/body :which-key "folding"))
+
+     (leader-menu
+      :infix "\\"
+      "" '(:ignore t :which-key "config")
+      "d" '(mattly|find-dotfile :which-key "find init.org")
+      "r" '(mattly|reload-init :which-key "reload"))
 
      (defhydra mattly|folding (:color pink)
        "
@@ -659,13 +693,19 @@ simply can't do in vim. Spacemacs nailed this.
 
 ** Evil Motion (Normal, Visual, Operator) Mappings
   #+BEGIN_SRC emacs-lisp
-    (general-mmap
-     "M-x" 'counsel-M-x
-     "TAB" 'origami-recursively-toggle-node)
+    (general-create-definer normal-keys
+                            :keymaps '(evil-normal-state-map evil-visual-state-map))
+
+    (normal-keys
+     "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
+     "/" '(swiper :which-key "swiper")
+     "M-=" '(text-scale-increase :which-key "zoom in")
+     "M--" '(text-scale-decrease :which-key "zoom out")
+     "M-x" '(counsel-M-x :which-key "counsel-M-x"))
   #+END_SRC
    
    
-* Major Modes (file types, languages, etc)
+* Major & Minor Modes (file types, languages, etc)
 ** Elisp
 ** Org
    Org is as close to a realization of the editable, interactive, embeddable
