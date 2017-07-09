@@ -541,167 +541,236 @@ simply can't do in vim. Spacemacs nailed this.
   does to text manipulation. 
 
 ** General
+   [[https://github.com/noctuid/general.el][general.el]] isn't quite my dream DSL for binding keys, but it turns out that
+   keybindings in emacs with evil is a pretty complex topic. You've got various
+   states & modes to worry about, mode maps, common prefixes, etc. And it
+   handles those all pretty well.
    #+BEGIN_SRC emacs-lisp
      (use-package general
-       :commands (general-imap general-emap general-nmap general-vmap general-omap
-		  general-mmap general-rmap general-otomap general-itomap general-iemap
-		  general-nvmap general-tomap)
+       :commands (general-create-definer)
        :config
        (general-evil-setup t))
    #+END_SRC
 
-** Menu System
-   First, define our leaders:
+*** Binding Helpers
+    These binding helpers are useful for defining bindings with common options
+    in multiple places, so I don't have to define everything at one or track down
+    common options in multiple places.
+
+    =bind-at-rest= makes bindings in normal & visual mode without a prefix, to
+    accompany such vim stalwarts as =i= and =w=. They are bound to keymaps
+    instead of states, because other modes (such as magit) might provide their
+    own bindings on these keys and I don't want to override those.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-at-rest
+                              :keymaps '(evil-normal-state-map evil-visual-state-map))
+
+    #+END_SRC
+
+    =bind-main-menu= makes bindings for the global menu system on =SPC= for
+    at-rest modes, or in insert/emacs mode with =M-S-SPC=.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-main-menu
+                              :prefix "SPC"
+                              :non-normal-prefix "M-S-SPC"
+                              :keymaps 'global
+                              :states '(normal visual operator insert emacs))
+    #+END_SRC
+
+    =bind-mode-menu= makes a binding for the major-mode-specific menu system on
+    =,= for at-rest modes or =M-S-,= for insert mode.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-mode-menu
+                              :prefix ","
+                              :states '(normal visual))
+    #+END_SRC
+
+** At-Rest (Normal & Visual) immediate mappings
+   I'm basically mucking with the vim bindings here.
    #+BEGIN_SRC emacs-lisp
-     (defvar main-leader-key "SPC")
-     (defvar minor-mode-leader-key ",")
-   #+END_SRC 
-   
-   Then, Setup our under-main-leader keybindings:
-   #+BEGIN_SRC emacs-lisp 
-     (general-create-definer leader-menu
-                             :prefix "SPC"
-                             :keymaps 'global
-                             :states '(normal visual operator)
-                             :non-normal-prefix "M-SPC")
-
-     (leader-menu
-      "/" '(counsel-rg :which-key "search in project")
-      "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
-      "SPC" '(counsel-M-x :which-key "M-x"))
-
-     (leader-menu
-      :infix "b"
-      "" '(:ignore t :which-key "buffer")
-      "b" '(buffer-menu :which-key "menu")
-      "d" '(evil-delete-buffer :which-key "delete")
-      "D" '(kill-buffer-and-window :which-key "delete buffer & window"))
-
-     (leader-menu
-      :infix "f"
-      "" '(:ignore t :which-key "file")
-      "D" '(delete-file :which-key "delete (any file)")
-      "f" '(counsel-find-file :which-key "find file")
-      "r" '(counsel-recentf :which-key "recent files")
-      "R" '(rename-file :which-key "rename (any file)")
-      "s" '(save-buffer :which-key "save"))
-
-     (leader-menu
-      :infix "g"
-      "" '(:ignore t :which-key "git")
-      "b" '(magit-blame :which-key "blame")
-      "f" '(counsel-git :which-key "find file")
-      "g" '(counsel-git-grep :which-key "git grep")
-      "s" '(magit-status :which-key "status"))
-
-     (leader-menu
-      :infix "h"
-      "" '(:ignore t :which-key "help")
-      "f" '(counsel-describe-function :which-key "describe function")
-      "F" '(counsel-describe-face :which-key "describe face")
-      "k" '(describe-key :which-key "describe key")
-      "v" '(counsel-describe-variable :which-key "describe variable"))
-
-     (leader-menu
-      :infix "p"
-      "" '(:ignore t :which-key "project")
-      "f" '(projectile-find-file :which-key "find file")
-      "p" '(projectile-switch-project :which-key "switch project")
-      "r" '(projectile-recentf :which-key "recent files")
-      "x" '(projectile-invalidate-cache :which-key "invalidate cache"))
-
-     (leader-menu
-      :infix "q"
-      "" '(:ignore t :which-key "quit")
-      "r" '(restart-emacs :which-key "restart")
-      "q" '(evil-save-and-quit :which-key "quit and save"))
-
-     (defhydra mattly-toggles (:color pink)
-       "
-     _f_ auto-fill-mode %`auto-fill-function
-     _w_ whitespace-mode %`whitespace-mode
-     "
-       ("f" auto-fill-mode nil)
-       ("w" whitespace-mode nil)
-       ("q" nil "cancel"))
-
-     (leader-menu
-      "t" '(mattly-toggles/body :which-key "toggles"))
-
-     (leader-menu
-      :infix "w"
-      "" '(:ignore t :which-key "window")
-      "h" '(evil-window-left :which-key "go left")
-      "j" '(evil-window-down :which-key "go down")
-      "k" '(evil-window-up :which-key "go up")
-      "l" '(evil-window-right :which-key "go right")
-      "m" '(:ignore t :which-key "move")
-      "m h" '(evil-window-move-far-left :which-key "far left")
-      "m j" '(evil-window-move-very-bottom :which-key "far bottom")
-      "m k" '(evil-window-move-very-top :which-key "far top")
-      "m l" '(evil-window-move-far-right :which-key "far right")
-      "s" '(evil-window-split :which-key "split left")
-      "v" '(evil-window-vsplit :which-key "split below")
-      "d" '(evil-window-delete :which-key "delete"))
-
-     (leader-menu
-      :infix "x"
-      "" '(:ignore t :which-key "text")
-      "i" '(:ignore t :which-key "inflection")
-      "i c" '(string-inflection-lower-camelcase :which-key "camelCase")
-      "i C" '(string-inflection-camelcase :which-key "CamelCase")
-      "i -" '(string-inflection-kebab-case :which-key "kebab-case")
-      "i k" '(string-inflection-kebab-case :which-key "kebab-case")
-      "i _" '(string-inflection-underscore :which-key "under_score") ;; you hate me
-      "i u" '(string-inflection-underscore :which-key "under_score") ;; why do you hate me?
-      "i U" '(string-inflection-upcase :which-key "UP_CASE")) ;; oh right you think `-` is math because you have a crap parser.
-
-     (leader-menu
-      "z" '(mattly|folding/body :which-key "folding"))
-
-     (leader-menu
-      :infix "\\"
-      "" '(:ignore t :which-key "config")
-      "d" '(mattly|find-dotfile :which-key "find init.org")
-      "r" '(mattly|reload-init :which-key "reload"))
-
-     (defhydra mattly|folding (:color pink)
-       "
-     Close^^          Open^^           Toggle^^        Goto^^
-     -----^^--------- ----^^---------- ------^^------- ----^^----
-     _c_: at point    _o_: at point    _a_: at point   _n_: next
-     _C_: recursively _O_: recursively _A_: all        _p_: previous
-     _m_: all         _r_: all         _TAB_: like org
-     "
-       ("c" origami-close-node)
-       ("C" origami-close-node-recursively)
-       ("m" origami-close-all-nodes)
-       ("o" origami-open-node)
-       ("O" origami-open-node-recursively)
-       ("a" origami-forward-toggle-node)
-       ("r" origami-open-all-nodes)
-       ("A" origami-toggle-all-nodes)
-       ("TAB" origami-recursively-toggle-node)
-       ("<tab>" origami-recursively-toggle-node)
-       ("n" origami-next-fold)
-       ("p" origami-previous-fold)
-       ("q" nil :exit t)
-       ("C-g" nil :exit t)
-       ("<SPC>" nil :exit t))
+     (bind-at-rest
+      "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
+      "/" '(swiper :which-key "swiper")
+      "M-=" '(text-scale-increase :which-key "zoom in")
+      "M--" '(text-scale-decrease :which-key "zoom out")
+      "M-x" '(counsel-M-x :which-key "counsel-M-x"))
    #+END_SRC
 
-** Evil Motion (Normal, Visual, Operator) Mappings
-  #+BEGIN_SRC emacs-lisp
-    (general-create-definer normal-keys
-                            :keymaps '(evil-normal-state-map evil-visual-state-map))
+** Menu System
+   The spacemacs menu-system is one of the best new things I've seen in an
+   editor in a long time. This is my copy.
 
-    (normal-keys
-     "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
-     "/" '(swiper :which-key "swiper")
-     "M-=" '(text-scale-increase :which-key "zoom in")
-     "M--" '(text-scale-decrease :which-key "zoom out")
-     "M-x" '(counsel-M-x :which-key "counsel-M-x"))
-  #+END_SRC
+*** Top-Level
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       "/" '(counsel-rg :which-key "search in project")
+       "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
+       "SPC" '(counsel-M-x :which-key "M-x"))
+    #+END_SRC
+
+*** b is for Buffer
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "b"
+       "" '(:ignore t :which-key "buffer")
+       "b" '(buffer-menu :which-key "menu")
+       "d" '(evil-delete-buffer :which-key "delete")
+       "D" '(kill-buffer-and-window :which-key "delete buffer & window"))
+    #+END_SRC
+
+*** f is for Files
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "f"
+       "" '(:ignore t :which-key "file")
+       "D" '(delete-file :which-key "delete (any file)")
+       "f" '(counsel-find-file :which-key "find file")
+       "r" '(counsel-recentf :which-key "recent files")
+       "R" '(rename-file :which-key "rename (any file)")
+       "s" '(save-buffer :which-key "save"))
+    #+END_SRC
+
+*** g is for Git
+    I feel a bit bad about this, maybe it should be under =v= for Version
+    Control? But I mean, I haven't touched another VCS aside from just toying
+    around in like 8 years. So git it is.
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "g"
+       "" '(:ignore t :which-key "git")
+       "b" '(magit-blame :which-key "blame")
+       "f" '(counsel-git :which-key "find file")
+       "g" '(counsel-git-grep :which-key "git grep")
+       "s" '(magit-status :which-key "status"))
+    #+END_SRC
+
+*** h is for Help
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "h"
+       "" '(:ignore t :which-key "help")
+       "f" '(counsel-describe-function :which-key "describe function")
+       "F" '(counsel-describe-face :which-key "describe face")
+       "k" '(describe-key :which-key "describe key")
+       "v" '(counsel-describe-variable :which-key "describe variable"))
+    #+END_SRC
+
+*** p is for Project
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "p"
+       "" '(:ignore t :which-key "project")
+       "f" '(projectile-find-file :which-key "find file")
+       "p" '(projectile-switch-project :which-key "switch project")
+       "r" '(projectile-recentf :which-key "recent files")
+       "x" '(projectile-invalidate-cache :which-key "invalidate cache"))
+    #+END_SRC
+
+*** q is for Quitters
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "q"
+       "" '(:ignore t :which-key "quit")
+       "r" '(restart-emacs :which-key "restart")
+       "q" '(evil-save-and-quit :which-key "quit and save"))
+    #+END_SRC
+
+*** t is for Toggles
+    I'm using a hydra for this because I can make it show me if a toggle is
+    enabled or not.
+    #+BEGIN_SRC emacs-lisp
+      (defhydra mattly-toggles (:color pink)
+        "
+      _f_ auto-fill-mode %`auto-fill-function
+      _w_ whitespace-mode %`whitespace-mode
+      "
+        ("f" auto-fill-mode nil)
+        ("w" whitespace-mode nil)
+        ("q" nil "cancel"))
+
+      (bind-main-menu
+       "t" '(mattly-toggles/body :which-key "toggles"))
+    #+END_SRC
+
+*** w is for Windows
+    The vim/emacs notion of a window, that is. What you'd call a "pane" or
+    "split" in a more modern program.
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "w"
+       "" '(:ignore t :which-key "window")
+       "h" '(evil-window-left :which-key "go left")
+       "j" '(evil-window-down :which-key "go down")
+       "k" '(evil-window-up :which-key "go up")
+       "l" '(evil-window-right :which-key "go right")
+       "m" '(:ignore t :which-key "move")
+       "m h" '(evil-window-move-far-left :which-key "far left")
+       "m j" '(evil-window-move-very-bottom :which-key "far bottom")
+       "m k" '(evil-window-move-very-top :which-key "far top")
+       "m l" '(evil-window-move-far-right :which-key "far right")
+       "s" '(evil-window-split :which-key "split left")
+       "v" '(evil-window-vsplit :which-key "split below")
+       "d" '(evil-window-delete :which-key "delete"))
+    #+END_SRC
+
+*** x is for Text
+    OK this one is a bit of a stretch. At least the letter is in the item? And
+    I'm used to it from spacemacs.
+    #+BEGIN_SRC emacs-lisp
+      (bind-main-menu
+       :infix "x"
+       "" '(:ignore t :which-key "text")
+       "i" '(:ignore t :which-key "inflection")
+       "i c" '(string-inflection-lower-camelcase :which-key "camelCase")
+       "i C" '(string-inflection-camelcase :which-key "CamelCase")
+       "i -" '(string-inflection-kebab-case :which-key "kebab-case")
+       "i k" '(string-inflection-kebab-case :which-key "kebab-case")
+       "i _" '(string-inflection-underscore :which-key "under_score") ;; you hate me
+       "i u" '(string-inflection-underscore :which-key "under_score") ;; why do you hate me?
+       "i U" '(string-inflection-upcase :which-key "UP_CASE")) ;; oh right you think `-` is math because you have a crap parser.
+    #+END_SRC
+
+*** z is for Folding
+    This is even more of a stretch. But it ties into existing folding under
+    =z=. I'm using a hydra for this because it makes naviation easier.
+    #+BEGIN_SRC emacs-lisp
+      (defhydra mattly|folding (:color pink)
+        "
+      Close^^          Open^^           Toggle^^        Goto^^
+      -----^^--------- ----^^---------- ------^^------- ----^^----
+      _c_: at point    _o_: at point    _a_: at point   _n_: next
+      _C_: recursively _O_: recursively _A_: all        _p_: previous
+      _m_: all         _r_: all         _TAB_: like org
+      "
+        ("c" origami-close-node)
+        ("C" origami-close-node-recursively)
+        ("m" origami-close-all-nodes)
+        ("o" origami-open-node)
+        ("O" origami-open-node-recursively)
+        ("a" origami-forward-toggle-node)
+        ("r" origami-open-all-nodes)
+        ("A" origami-toggle-all-nodes)
+        ("TAB" origami-recursively-toggle-node)
+        ("<tab>" origami-recursively-toggle-node)
+        ("n" origami-next-fold)
+        ("p" origami-previous-fold)
+        ("q" nil :exit t)
+        ("C-g" nil :exit t)
+        ("<SPC>" nil :exit t))
+
+      (bind-main-menu
+       "z" '(mattly|folding/body :which-key "folding"))
+    #+END_SRC
+
+*** \ is for This Config
+    The stretchiest stretch of them all.
+    #+BEGIN_SRC emacs-lisp 
+      (bind-main-menu
+       :infix "\\"
+       "" '(:ignore t :which-key "config")
+       "d" '(mattly|find-dotfile :which-key "find init.org")
+       "r" '(mattly|reload-init :which-key "reload"))
+    #+END_SRC
    
    
 * Major & Minor Modes (file types, languages, etc)
@@ -798,14 +867,13 @@ simply can't do in vim. Spacemacs nailed this.
       "k" 'evil-previous-visual-line
       "RET" 'org-return-indent)
 
-     (general-define-key
-      :prefix ","
-      :states '(normal visual)
+     (bind-mode-menu
       :keymaps 'org-mode-map
       "c" '(org-edit-special :which-key "edit special")
       "d" '(org-insert-drawer :which-key "insert drawer")
       "h" '(org-insert-heading-respect-content :which-key "insert heading after")
-      "H" '(org-insert-subheading :which-key "insert subheading here"))
+      "H" '(org-insert-subheading :which-key "insert subheading here")
+      "t" '(org-table-create :which-key "create table"))
 
      (defhydra mattly|hydra-org-structure (:color pink)
        "
