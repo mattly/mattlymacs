@@ -54,20 +54,24 @@ simply can't do in vim. Spacemacs nailed this.
 
 * Literate Emacs configuration with Org
 
-The included =init.el= file should, after the first run, mirror the source
-blocks in =init.org=. Running =org-babel-tangle= will extract the code blocks
-from the file into a source-specific file, in this case an =.el= file.
+  The included =init.el= file should, after the first run, mirror the source
+  blocks in =init.org=. Running =org-babel-tangle= will extract the code blocks
+  from the file into a source-specific file, in this case an =.el= file. 
+
+  #+BEGIN_SRC emacs-lisp
+    (defvar mattly|config-location
+      (expand-file-name (concat user-emacs-directory "init.org")))
+  #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (defun tangle-init ()
     "If the current buffer is 'init.org' the code-blocks are tangled, and the
     tangled file is compiled."
-    (when (equal (buffer-file-name)
-		 (expand-file-name (concat user-emacs-directory "init.org")))
+    (when (equal (buffer-file-name) mattly|config-location)
       ;; Avoid running hooks when tangling
       (let ((prog-mode-hook nil))
-	(org-babel-tangle)
-	(byte-compile-file (concat user-emacs-directory "init.el")))))
+        (org-babel-tangle)
+        (byte-compile-file (concat user-emacs-directory "init.el")))))
 
   (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
@@ -192,6 +196,14 @@ from the file into a source-specific file, in this case an =.el= file.
        (run-hooks 'mattlymacs-init-hook))   
 
      (add-hook 'emacs-startup-hook #'mattly|initialize)
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+     (defun mattly|find-dotfile ()
+       "Edit `init.org' int he current window"
+       (interactive)
+       (find-file-existing mattly|config-location))
+
    #+END_SRC
 
    #+BEGIN_SRC emacs-lisp
@@ -666,15 +678,6 @@ from the file into a source-specific file, in this case an =.el= file.
      (use-package org-plus-contrib
        :defer t
        :config
-       (add-hook 'org-load-hook #'+org|load)
-       (add-hook 'org-mode-hook #'+org|init))
-
-     (defun +org|init ()
-       (add-hook 'mattlymacs-init-hook #'+org|init)
-       (+org|init-babel)
-       (org-bullets-mode))
-
-     (defun +org|load ()
        (sp-with-modes '(org-mode)
          (sp-local-pair "\\[" "\\]" :post-handlers '(("|" "SPC")))
          (sp-local-pair "\\(" "\\)" :post-handlers '(("|" "SPC")))
@@ -688,11 +691,12 @@ from the file into a source-specific file, in this case an =.el= file.
     for something.
     #+BEGIN_SRC emacs-lisp
       (use-package org-bullets
-	:defer t
-	:commands (org-bullets-mode)
-	:init
-	(setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
-	(setq org-bullets-face-name 'org-bullet))
+        :defer t
+        :commands (org-bullets-mode)
+        :init
+        (setq org-bullets-bullet-list '("§" "𝟤" "𝟥" "𝟦" "𝟧" "𝟨" "𝟩" "𝟪" "𝟫"))
+        (setq org-bullets-face-name 'org-bullet)
+        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
     #+END_SRC
    
 **** org-babel
@@ -718,6 +722,9 @@ from the file into a source-specific file, in this case an =.el= file.
 
          (add-hook 'org-src-mode-hook
                    (lambda () (when header-line-format (setq header-line-format nil)))))
+
+       (add-hook 'org-mode-hook #'+org|init-babel)
+       (add-hook 'mattlymacs-init-hook #'+org|init-babel)
      #+END_SRC
 
 **** org-evil
