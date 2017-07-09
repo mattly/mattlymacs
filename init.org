@@ -311,49 +311,99 @@ simply can't do in vim. Spacemacs nailed this.
      (load-theme 'akkala-basic)
    #+END_SRC
 
-* Evil Mode
+** Evil Mode
   
-  A necessary evil. I don't have much to say about this beyond what I said at
-  the beginning. A tidbit at the end of the =:config= section sets up the "correct"
-  behavior of focusing the new window when creating a split.
-  #+BEGIN_SRC emacs-lisp
-  (use-package evil
-    :demand t
-    :init
-    (setq evil-want-C-u-scroll t
-	  evil-want-visual-char-semi-exclusive t
-	  evil-want-Y-yank-to-eol t
-	  evil-magic t
-	  evil-echo-state t
-	  evil-indent-convert-tabs t
-	  evil-ex-search-vim-style-regexp t
-	  evil-ex-substitute-global t
-	  evil-ex-visual-char-range t
-	  evil-insert-skip-empty-lines t
-	  evil-mode-line-format 'nil
-	  evil-symbol-word-search t
-	  shift-select-mode nil)
-    :config
-    (evil-mode +1)
-    (evil-select-search-module 'evil-search-module 'evil-search)
-    (defun +evil*window-follow (&rest _)  (evil-window-down 1))
-    (defun +evil*window-vfollow (&rest _) (evil-window-right 1))
-    (advice-add #'evil-window-split  :after #'+evil*window-follow)
-    (advice-add #'evil-window-vsplit :after #'+evil*window-vfollow))
-  #+END_SRC
+   A necessary evil. I don't have much to say about this beyond what I said at
+   the beginning. A tidbit at the end of the =:config= section sets up the "correct"
+   behavior of focusing the new window when creating a split.
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil
+       :demand t
+       :init
+       (setq evil-want-C-u-scroll t
+             evil-want-visual-char-semi-exclusive t
+             evil-want-Y-yank-to-eol t
+             evil-magic t
+             evil-echo-state t
+             evil-indent-convert-tabs t
+             evil-ex-search-vim-style-regexp t
+             evil-ex-substitute-global t
+             evil-ex-visual-char-range t
+             evil-insert-skip-empty-lines t
+             evil-mode-line-format 'nil
+             evil-symbol-word-search t
+             shift-select-mode nil)
+       :config
+       (evil-mode +1)
+       (evil-select-search-module 'evil-search-module 'evil-search)
+       (defun +evil*window-follow (&rest _)  (evil-window-down 1))
+       (defun +evil*window-vfollow (&rest _) (evil-window-right 1))
+       (advice-add #'evil-window-split  :after #'+evil*window-follow)
+       (advice-add #'evil-window-vsplit :after #'+evil*window-vfollow))
+   #+END_SRC
   
-** evil-commentary
-   Automatically sets up =gc= and =gcc= similar to the vim plugin, also provides:
+** Key Binding Helpers (General)
+   I'm defining this here instead of the key bindings section, so I can very
+   easily elsewhere in this config handle one-off bindings for small packages as
+   they come up.
 
-   - =gy= :: yanks (copies) the uncommented code, and comments the motion out
-   - =s-/= :: comments out the current line, similar to =gcc=
-  #+BEGIN_SRC emacs-lisp
-  (use-package evil-commentary
-    :commands (evil-commentary evil-commentary-yank evil-commentary-line)
-    :config
-    (evil-commentary-mode 1))
-  #+END_SRC
-  
+   [[https://github.com/noctuid/general.el][general.el]] isn't quite my dream DSL for binding keys, but it turns out that
+   keybindings in emacs with evil is a pretty complex topic. You've got various
+   states & modes to worry about, mode maps, common prefixes, etc. And it
+   handles those all pretty well.
+   #+BEGIN_SRC emacs-lisp
+     (use-package general
+       :commands (general-create-definer)
+       :config
+       (general-evil-setup t))
+   #+END_SRC
+
+*** Binding Helpers
+    These binding helpers are useful for defining bindings with common options
+    in multiple places, so I don't have to define everything at one or track down
+    common options in multiple places.
+
+    =bind-at-rest= makes bindings in normal & visual mode without a prefix, to
+    accompany such vim stalwarts as =i= and =w=. They are bound to keymaps
+    instead of states, because other modes (such as magit) might provide their
+    own bindings on these keys and I don't want to override those.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-at-rest
+                              :keymaps '(evil-normal-state-map evil-visual-state-map))
+
+    #+END_SRC
+
+    =bind-main-menu= makes bindings for the global menu system on =SPC= for
+    at-rest modes, or in insert/emacs mode with =M-S-SPC=.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-main-menu
+                              :prefix "SPC"
+                              :non-normal-prefix "M-S-SPC"
+                              :keymaps 'global
+                              :states '(normal visual operator insert emacs))
+    #+END_SRC
+
+    =bind-mode-menu= makes a binding for the major-mode-specific menu system on
+    =,= for at-rest modes or =M-S-,= for insert mode.
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-mode-menu
+                              :prefix ","
+                              :states '(normal visual))
+    #+END_SRC
+** evil Plugins 
+*** evil-commentary
+    Automatically sets up =gc= and =gcc= similar to the vim plugin, also provides:
+
+    - =gy= :: yanks (copies) the uncommented code, and comments the motion out
+    - =s-/= :: comments out the current line, similar to =gcc=
+   #+BEGIN_SRC emacs-lisp
+   (use-package evil-commentary
+     :commands (evil-commentary evil-commentary-yank evil-commentary-line)
+     :config
+     (evil-commentary-mode 1))
+   #+END_SRC
+
+
 * Editor Niceties
   
 ** Recent Files
@@ -539,51 +589,6 @@ simply can't do in vim. Spacemacs nailed this.
   I've come to adore the spacemacs binding grammar for how it provides a
   similar sort of pattern to file/buffer/window/etc commands as vim's grammar
   does to text manipulation. 
-
-** General
-   [[https://github.com/noctuid/general.el][general.el]] isn't quite my dream DSL for binding keys, but it turns out that
-   keybindings in emacs with evil is a pretty complex topic. You've got various
-   states & modes to worry about, mode maps, common prefixes, etc. And it
-   handles those all pretty well.
-   #+BEGIN_SRC emacs-lisp
-     (use-package general
-       :commands (general-create-definer)
-       :config
-       (general-evil-setup t))
-   #+END_SRC
-
-*** Binding Helpers
-    These binding helpers are useful for defining bindings with common options
-    in multiple places, so I don't have to define everything at one or track down
-    common options in multiple places.
-
-    =bind-at-rest= makes bindings in normal & visual mode without a prefix, to
-    accompany such vim stalwarts as =i= and =w=. They are bound to keymaps
-    instead of states, because other modes (such as magit) might provide their
-    own bindings on these keys and I don't want to override those.
-    #+BEGIN_SRC emacs-lisp
-      (general-create-definer bind-at-rest
-                              :keymaps '(evil-normal-state-map evil-visual-state-map))
-
-    #+END_SRC
-
-    =bind-main-menu= makes bindings for the global menu system on =SPC= for
-    at-rest modes, or in insert/emacs mode with =M-S-SPC=.
-    #+BEGIN_SRC emacs-lisp
-      (general-create-definer bind-main-menu
-                              :prefix "SPC"
-                              :non-normal-prefix "M-S-SPC"
-                              :keymaps 'global
-                              :states '(normal visual operator insert emacs))
-    #+END_SRC
-
-    =bind-mode-menu= makes a binding for the major-mode-specific menu system on
-    =,= for at-rest modes or =M-S-,= for insert mode.
-    #+BEGIN_SRC emacs-lisp
-      (general-create-definer bind-mode-menu
-                              :prefix ","
-                              :states '(normal visual))
-    #+END_SRC
 
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
