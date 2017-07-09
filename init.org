@@ -726,10 +726,14 @@ simply can't do in vim. Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
       (defhydra mattly-toggles (:color pink)
         "
-      _f_ auto-fill-mode %`auto-fill-function
-      _w_ whitespace-mode %`whitespace-mode
+      _f_ fill column indicator:   %`fci-mode
+      _F_ auto line breaking:      %`auto-fill-function
+      _p_ smartparens:             %`smartparens-mode
+      _w_ whitespace display:      %`whitespace-mode
       "
-        ("f" auto-fill-mode nil)
+        ("f" fci-mode nil)
+        ("F" auto-fill-mode nil)
+        ("p" smartparens-mode nil)
         ("w" whitespace-mode nil)
         ("q" nil "cancel"))
 
