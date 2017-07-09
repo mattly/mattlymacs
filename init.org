@@ -547,12 +547,11 @@ simply can't do in vim. Spacemacs nailed this.
 
    #+END_SRC
 
-** Magit
-   
-   [[https://magit.vc][Magit]] is pretty awesome, and I say that as someone who used to prefer the
-   command line, and came up with all sorts of pithy aliases in his [[https://github.com/mattly/dotfiles/blob/master/configs/gitconfig#L46][gitconfig]]
-   to handle common operations. I guess I had a sort-of stockholm syndrome for
-   git's poor user interface.
+** Source Control: Git and Magit
+   Sure, I could use mercurial or perforce, but what would that get me? Git is
+   it, and [[https://magit.vc][Magit]] is pretty awesome. I used to prefer the git command line, and 
+   came up with all sorts of pithy aliases in my [[https://github.com/mattly/dotfiles/blob/master/configs/gitconfig#L46][gitconfig]] to handle common
+   operations. I had stockholm syndrome for git's poor user interface. 
    #+BEGIN_SRC emacs-lisp
      (use-package magit
        :commands (magit-status magit-list-repositories)
@@ -561,13 +560,35 @@ simply can't do in vim. Spacemacs nailed this.
    #+END_SRC
 
 *** Evil for Magit
-   #+BEGIN_SRC emacs-lisp
-     (use-package evil-magit
-       :init
-       (with-eval-after-load 'magit
-         (require 'evil-magit)))
-   #+END_SRC
- 
+    I still want evil-bindings everywhere, though.
+    #+BEGIN_SRC emacs-lisp
+      (use-package evil-magit
+        :init
+        (with-eval-after-load 'magit
+          (require 'evil-magit)))
+    #+END_SRC
+
+*** Committing
+    Best practices for git commits are: 50 character subject lines, separate the
+    body with a blank line, and wrap the body at 72 characters. I can enforce those.
+    Things like capitalization, imperative in the subject, explain _what_ and
+    _why_ vs. _how_, I can't enforce so much.
+    #+BEGIN_SRC emacs-lisp
+      (use-package git-commit
+        :defer t
+        :config
+        (add-hook 'git-commit-mode-hook #'fci-mode))
+    #+END_SRC
+
+*** Git Files (.gitignore, .gitcommit)
+    #+BEGIN_SRC emacs-lisp
+      (use-package gitattributes-mode
+        :defer t)
+      (use-package gitconfig-mode
+        :defer t)
+      (use-package gitignore-mode
+        :defer t)
+    #+END_SRC
 * Lisp
   People who complain about the abundance of parenthesis in lisps miss the
   point. In over two years of working primarily with lisps full-time, the only
