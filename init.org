@@ -422,9 +422,7 @@ simply can't do in vim. Spacemacs nailed this.
      (evil-commentary-mode 1))
    #+END_SRC
 
-
 * Editor Niceties
-  
 ** Recent Files
    Keep track of recent files
    #+BEGIN_SRC emacs-lisp
@@ -437,7 +435,6 @@ simply can't do in vim. Spacemacs nailed this.
                                    "\\.?ido\\.last$" "\\.revive$" "/TAGS$"))
        (recentf-mode 1))
    #+END_SRC
-
 
 ** Completion (Counsel, Ivy)
 
@@ -537,7 +534,6 @@ simply can't do in vim. Spacemacs nailed this.
      #+END_SRC
 
 * Project Management
-  
 ** Projectile
    One of my first big gripes when moving to Emacs from vim was, I was used to working with
    per-project vim instances under tmux, so buffers were naturally isolated based on where
