@@ -507,6 +507,12 @@ simply can't do in vim. Spacemacs nailed this.
       (use-package string-inflection
         :defer t)
     #+END_SRC
+
+** In-Buffer Navigation
+   I'm just trying out avy for now.
+   #+BEGIN_SRC emacs-lisp
+     (use-package avy)
+   #+END_SRC
 ** Miscellany
 *** $EDITOR for child processes
     #+BEGIN_SRC emacs-lisp
@@ -641,11 +647,15 @@ simply can't do in vim. Spacemacs nailed this.
          (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
    #+END_SRC
 
-* Key Bindings
-  I've come to adore the spacemacs binding grammar for how it provides a
-  similar sort of pattern to file/buffer/window/etc commands as vim's grammar
-  does to text manipulation. 
+** Lispy
+   #+BEGIN_SRC emacs-lisp
+     (use-package lispy)
+     (use-package evil-lispy)
 
+     (add-hook 'emacs-lisp-mode-hook #'evil-lispy-mode)
+   #+END_SRC
+
+* Key Bindings
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
    #+BEGIN_SRC emacs-lisp
