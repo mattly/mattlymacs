@@ -83,11 +83,10 @@ simply can't do in vim. Spacemacs nailed this.
     (setq package-archives
           '(("melpa" . "https://melpa.org/packages/")
             ("gnu" . "https://elpa.gnu.org/packages/")
-            ("org"   . "http://orgmode.org/elpa/")
-            ("melpa-stable" . "https://stable.melpa.org/packages/")))
+            ("org"   . "http://orgmode.org/elpa/")))
     (package-initialize)
   #+END_SRC
-   
+
 ** use-package
   When reading about how other people manage their own Emacs config, the
   top thing people seem to be happiest with is switching to
@@ -118,6 +117,12 @@ simply can't do in vim. Spacemacs nailed this.
     (setq use-package-always-ensure t)
   #+END_SRC
 
+** updating packages
+   #+BEGIN_SRC emacs-lisp
+     (use-package auto-package-update
+       :config
+       (setq auto-package-update-delete-old-versions t))
+   #+END_SRC
 * Sanitizing Emacs
 ** Changing Defaults
    
@@ -842,6 +847,7 @@ simply can't do in vim. Spacemacs nailed this.
        :infix "\\"
        "" '(:ignore t :which-key "config")
        "d" '(mattly|find-dotfile :which-key "find init.org")
+       "p" '(auto-package-update-now :which-key "update packages")
        "r" '(mattly|reload-init :which-key "reload"))
     #+END_SRC
    
