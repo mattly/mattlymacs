@@ -59,7 +59,7 @@ simply can't do in vim.  Spacemacs nailed this.
 
   #+BEGIN_SRC emacs-lisp
     (defvar mattly|config-location
-      (expand-file-name (concat user-emacs-directory "init.org")))
+      (expand-file-name (concat user-emacs-directory "config.org")))
   #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -70,7 +70,7 @@ simply can't do in vim.  Spacemacs nailed this.
       ;; Avoid running hooks when tangling
       (let ((prog-mode-hook nil))
         (org-babel-tangle)
-        (byte-compile-file (concat user-emacs-directory "init.el")))))
+        (byte-compile-file (concat user-emacs-directory "config.el")))))
 
   (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC

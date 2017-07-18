@@ -1,7 +1,7 @@
 *.elc
 *~
+config.el
 custom.el
-init.el
 recentf
 cache/*
 elpa/*
