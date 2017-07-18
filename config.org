@@ -936,7 +936,17 @@ simply can't do in vim.  Spacemacs nailed this.
    
    
 * Major & Minor Modes (file types, languages, etc)
-** Elisp
+** Clojure
+   #+BEGIN_SRC emacs-lisp
+     (use-package clojure-mode
+       :defer t
+       :init
+       (progn
+         (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
+         (add-to-list 'magic-mode-alist '("#!.*boot\\s-*$" . clojure-mode)))
+       :config)
+   #+END_SRC
+** Emacs Lisp
 ** Org
    Org is as close to a realization of the editable, interactive, embeddable
    content varietal document as I've seen since Steve Jobs killed OpenDoc back
