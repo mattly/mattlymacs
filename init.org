@@ -385,10 +385,18 @@ simply can't do in vim.  Spacemacs nailed this.
     accompany such vim stalwarts as =i= and =w=. They are bound to keymaps
     instead of states, because other modes (such as magit) might provide their
     own bindings on these keys and I don't want to override those.
-    #+BEGIN_SRC emacs-lisp
-      (general-create-definer bind-at-rest
-                              :keymaps '(evil-normal-state-map evil-visual-state-map))
 
+    #+BEGIN_SRC emacs-lisp
+      (general-create-definer bind-navigation
+                              :keymaps '(evil-normal-state-map evil-visual-state-map evil-motion-state-map)) 
+      (general-create-definer bind-motion
+                              :keymaps '(evil-motion-state-map)) 
+      (general-create-definer bind-operator
+                              :keymaps '(evil-operator-state-map))
+      (general-create-definer bind-inner-object
+                              :keymaps '(evil-inner-text-objects-map))
+      (general-create-definer bind-outer-object
+                              :keymaps '(evil-outer-text-objects-map))
     #+END_SRC
 
     =bind-main-menu= makes bindings for the global menu system on =SPC= for
@@ -415,12 +423,19 @@ simply can't do in vim.  Spacemacs nailed this.
     - =gy= :: yanks (copies) the uncommented code, and comments the motion out
     - =s-/= :: comments out the current line, similar to =gcc=
    #+BEGIN_SRC emacs-lisp
-   (use-package evil-commentary
-     :commands (evil-commentary evil-commentary-yank evil-commentary-line)
-     :config
-     (evil-commentary-mode 1))
+     (use-package evil-commentary
+       :commands (evil-commentary evil-commentary-yank evil-commentary-line)
+       :diminish t
+       :config
+       (evil-commentary-mode 1))
    #+END_SRC
-
+** Resetting Evil
+   #+BEGIN_SRC emacs-lisp
+     ;; (setcdr evil-normal-state-map nil)
+     ;; (setcdr evil-visual-state-map nil)
+     ;; (setcdr evil-motion-state-map nil)
+     (setcdr evil-operator-state-map nil)
+   #+END_SRC
 * Editor Niceties
 ** Recent Files
    Keep track of recent files
@@ -439,6 +454,7 @@ simply can't do in vim.  Spacemacs nailed this.
 
    #+BEGIN_SRC emacs-lisp
      (use-package counsel
+       :diminish t
        :ensure t)
 
      (use-package ivy
@@ -447,10 +463,11 @@ simply can't do in vim.  Spacemacs nailed this.
        :init (ivy-mode 1)
        :config
        (setq ivy-use-virtual-buffers t
-	     ivy-height 20
-	     ivy-count-format "(%d/%d) ")) 
+             ivy-height 20
+             ivy-count-format "(%d/%d) ")) 
 
      (use-package all-the-icons-ivy
+       :diminish t
        :config
        (all-the-icons-ivy-setup))
    #+END_SRC
@@ -459,6 +476,7 @@ simply can't do in vim.  Spacemacs nailed this.
 *** Folding
     #+BEGIN_SRC emacs-lisp
       (use-package origami
+        :diminish t
         :defer t
         :config
         (setq origami-show-fold-header t)
@@ -469,6 +487,7 @@ simply can't do in vim.  Spacemacs nailed this.
       (use-package smartparens
         :defer t
         :commands (sp-split-sexp sp-newline sp-up-sexp)
+        :diminish t
         :init
         (setq sp-autowrap-region nil ; let others handle this
               sp-highlight-pair-overlay t
@@ -492,6 +511,7 @@ simply can't do in vim.  Spacemacs nailed this.
 
       (use-package ethan-wspace
         :defer t
+        :diminish t
         :config
         (global-ethan-wspace-mode 1))
     #+END_SRC
@@ -660,18 +680,73 @@ simply can't do in vim.  Spacemacs nailed this.
 * Key Bindings
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
-   #+BEGIN_SRC emacs-lisp
-     (bind-at-rest
-      "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
-      "/" '(swiper :which-key "swiper")
-      "M-=" '(zoom-in :which-key "zoom in")
-      "M--" '(zoom-out :which-key "zoom out")
-      "M-x" '(counsel-M-x :which-key "counsel-M-x"))
-   #+END_SRC
+*** Navigation
+    #+BEGIN_SRC emacs-lisp
+      ;; (define-key evil-operator-state-map "i" nil)
+      (bind-navigation
+       "l" 'evil-backward-char
+       "u" 'evil-previous-line
+       "y" 'evil-forward-char
+
+       "e" 'evil-next-line
+       "n" 'evil-backward-word-begin
+       "i" 'evil-forward-word-begin
+
+       "L" 'back-to-indentation
+       "U" 'evil-backward-paragraph
+       "Y" 'evil-end-of-line
+
+       "N" 'evil-backward-sentence-begin
+       "I" 'evil-forward-sentence-begin
+       "E" 'evil-forward-paragraph
+
+       "j" 'evil-scroll-page-up
+       "h" 'evil-scroll-page-down)
+
+      (define-key evil-operator-state-map "r" evil-inner-text-objects-map)
+      (define-key evil-operator-state-map "s" evil-outer-text-objects-map)
+
+    #+END_SRC
+*** Modification
+    #+BEGIN_SRC emacs-lisp
+      (bind-navigation
+       "r" 'evil-insert
+       "R" 'evil-insert-line
+       "s" 'evil-append
+       "S" 'evil-append-line
+       "t" 'evil-change
+       "T" 'evil-change-line
+       "q" 'evil-replace
+       "Q" 'evil-replace-state
+       "z" 'evil-open-below
+       "Z" 'evil-open-above
+
+       "d" 'evil-delete
+       "D" 'evil-delete-line
+
+       "p" 'undo-tree-undo
+       "P" 'undo-tree-redo
+
+       "x" 'evil-delete-char
+       "X" 'evil-delete-line
+       "c" 'evil-yank
+       "C" 'evil-yank-line
+       "v" 'evil-paste-after
+       "V" 'evil-paste-before)
+    #+END_SRC
+*** Et Cetera
+    #+BEGIN_SRC emacs-lisp
+      (bind-navigation
+       "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
+       "/" '(swiper :which-key "swiper")
+       "M-=" '(zoom-in :which-key "zoom in")
+       "M--" '(zoom-out :which-key "zoom out")
+       "M-x" '(counsel-M-x :which-key "counsel-M-x"))
+    #+END_SRC
 
 ** Menu System
    The spacemacs menu-system is one of the best new things I've seen in an
-   editor in a long time. This is my copy.
+   editor in a long time.  This is my copy.
 
 *** Top-Level
     #+BEGIN_SRC emacs-lisp
@@ -928,13 +1003,13 @@ simply can't do in vim.  Spacemacs nailed this.
      additional text objects like =e= for an object and =E= for an element.
      #+BEGIN_SRC emacs-lisp
        (use-package org-evil
-	 :defer t
-	 :diminish t
-	 :after org
-	 :config
-	 (add-hook 'org-mode-hook 'evil-org-mode)
-	 (add-hook 'evil-org-mode-hook
-	     (lambda () (evil-org-set-key-theme)))) 
+         :defer t
+         :diminish t
+         :after org
+         :config
+         ;; (add-hook 'org-mode-hook 'evil-org-mode)
+         (add-hook 'evil-org-mode-hook
+             (lambda () (evil-org-set-key-theme)))) 
      #+END_SRC
 *** key bindings
     I was hoping to make an evil-mode similar to spacemacs' =evil-lisp-state=
@@ -950,8 +1025,6 @@ simply can't do in vim.  Spacemacs nailed this.
      (general-define-key
       :states '(normal visual operator)
       :keymaps 'org-mode-map
-      "j" 'evil-next-visual-line
-      "k" 'evil-previous-visual-line
       "RET" 'org-return-indent)
 
      (bind-mode-menu
