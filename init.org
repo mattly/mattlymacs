@@ -19,42 +19,42 @@ documenting my config in Org in a /literate/ fashion seems like the way to go.
 *** TODO Clojure Mode
 ** On Emacs vs. Vim, and Evil mode vs. Holy mode.
 
-Years ago, I used vim. I wrote code mostly in dynamically-typed,
+Years ago, I used vim.  I wrote code mostly in dynamically-typed,
 interpreted languages, working on projects of a scale for which I
-could keep their structure in my head. In some cases, I made this into
+could keep their structure in my head.  In some cases, I made this into
 an argument for microservices.
 
 Then I worked on a fairly large Scala project, and needed something
-more. The project lead wanted me to use IntelliJ, but Spacemacs was
+more.  The project lead wanted me to use IntelliJ, but Spacemacs was
 relatively new at the time and I thought I'd give that and Ensime a
-try. It was eons better than vim for working on that type of project.
+try.  It was eons better than vim for working on that type of project.
 
 I grew to like spacemacs, primarily for the which-key
-functionality. That's the sort of thing you just can't do in vim
-without hacking it to pieces. And then I found magit. And
-org-mode. And fell in love with lisp.
+functionality.  That's the sort of thing you just can't do in vim
+without hacking it to pieces.  And then I found magit.  And
+org-mode.  And fell in love with lisp.
 
 Don't get me wrong, Tim Pope is an amazingly talented plugin author,
 and NeoVim is making good strides, but for me it's too little, too
-late. Emacs is light years ahead of vim for many things in the same
+late.  Emacs is light years ahead of vim for many things in the same
 way that vim is light years ahead of Notepad.
 
 The stereotypes are true in both directions though: Stock Emacs has
-some utterly crap ergonomics. Yeah, I've mapped Caps-Lock to Control;
+some utterly crap ergonomics.  Yeah, I've mapped Caps-Lock to Control;
 I even used to make that remapping a requirement of co-workers who
-wanted terminal help. Where Emacs provides a better *environment* for
-editing text, vim provides a better *methodology* for doing so. Modal
+wanted terminal help.  Where Emacs provides a better *environment* for
+editing text, vim provides a better *methodology* for doing so.  Modal
 editing, the motion/object grammar, and leader keys are concepts I
 wish would seep into more software aimed at power-users.
 
 Here's where Emacs truly shines though: Things like Evil-mode, Hydra,
 and which-key help carry those ergonomic ideas forward in ways you
-simply can't do in vim. Spacemacs nailed this.
+simply can't do in vim.  Spacemacs nailed this.
 
 * Literate Emacs configuration with Org
 
   The included =init.el= file should, after the first run, mirror the source
-  blocks in =init.org=. Running =org-babel-tangle= will extract the code blocks
+  blocks in =init.org=.  Running =org-babel-tangle= will extract the code blocks
   from the file into a source-specific file, in this case an =.el= file. 
 
   #+BEGIN_SRC emacs-lisp
@@ -90,11 +90,11 @@ simply can't do in vim. Spacemacs nailed this.
 ** use-package
   When reading about how other people manage their own Emacs config, the
   top thing people seem to be happiest with is switching to
-  [[https://github.com/jwiegley/use-package][use-package]]. In vim-land, I used my own [[https://github.com/mattly/bork][bork]] project to manage vim
+  [[https://github.com/jwiegley/use-package][use-package]].  In vim-land, I used my own [[https://github.com/mattly/bork][bork]] project to manage vim
   plugins and never got into the many plugin managers that were becoming
   vogue when I switched away, and I don't have any experience with
   managing Emacs packages outside of Spacemacs, so I'm going to trust
-  people on this. =use-package= seems nice from what I've seen.
+  people on this.  =use-package= seems nice from what I've seen.
   
   If it's not installed, we need to install it, and then we need to make
   sure it's installed.
@@ -110,7 +110,7 @@ simply can't do in vim. Spacemacs nailed this.
   #+END_SRC
 
   Ensure all packages are installed; if they are not, go and get
-  them. This configuration is stored in version control and used on
+  them.  This configuration is stored in version control and used on
   multiple machines, and we shouldn't have to think about whether or not
   we've installed them on a particular one.
   #+BEGIN_SRC emacs-lisp
@@ -126,9 +126,9 @@ simply can't do in vim. Spacemacs nailed this.
 * Sanitizing Emacs
 ** Changing Defaults
    
-   I'm not a fan of most of the Emacs defaults. Thankfully, I don't have to be.
+   I'm not a fan of most of the Emacs defaults.  Thankfully, I don't have to be.
    
-   First of all, let's use UTF-8 everywhere. It's 2017, for crying out loud.
+   First of all, let's use UTF-8 everywhere.  It's 2017, for crying out loud.
    #+BEGIN_SRC emacs-lisp
      (when (fboundp 'set-charset-priority)
        (set-charset-priority 'unicode))
@@ -184,7 +184,7 @@ simply can't do in vim. Spacemacs nailed this.
       pcache-directory (concat mattlymacs-cache-dir "pcache/"))
    #+END_SRC
 ** Programming Helpers
-   The included =cl-lib= module contains many functions from common lisp. Quite
+   The included =cl-lib= module contains many functions from common lisp.  Quite
    frankly, I'm not very clear yet on where common lisp ends and emacs begins.
    #+BEGIN_SRC emacs-lisp
      (require 'cl-lib)
@@ -220,7 +220,7 @@ simply can't do in vim. Spacemacs nailed this.
 ** Package Improvements
 *** which-key
     =which-key= might be one of the best new things in power-user interfaces to
-    come along in years. Having all the commands in the word available at your
+    come along in years.  Having all the commands in the word available at your
     fingertips is great, but without a good discoverability mechanism it doesn't
     do much good.
     #+BEGIN_SRC emacs-lisp
@@ -234,7 +234,7 @@ simply can't do in vim. Spacemacs nailed this.
     #+END_SRC
 
 *** hydra
-    =hydra= is =which-key='s beautiful companion. There are some recipes to crib
+    =hydra= is =which-key='s beautiful companion.  There are some recipes to crib
     on the [[https://github.com/abo-abo/hydra/wiki][wiki]].
     #+BEGIN_SRC emacs-lisp
       (use-package hydra)
@@ -331,9 +331,8 @@ simply can't do in vim. Spacemacs nailed this.
    #+END_SRC
 
 ** Evil Mode
-  
-   A necessary evil. I don't have much to say about this beyond what I said at
-   the beginning. A tidbit at the end of the =:config= section sets up the "correct"
+   A necessary evil.  I don't have much to say about this beyond what I said at
+   the beginning.  A tidbit at the end of the =:config= section sets up the "correct"
    behavior of focusing the new window when creating a split.
    #+BEGIN_SRC emacs-lisp
      (use-package evil
@@ -367,8 +366,8 @@ simply can't do in vim. Spacemacs nailed this.
    they come up.
 
    [[https://github.com/noctuid/general.el][general.el]] isn't quite my dream DSL for binding keys, but it turns out that
-   keybindings in emacs with evil is a pretty complex topic. You've got various
-   states & modes to worry about, mode maps, common prefixes, etc. And it
+   keybindings in emacs with evil is a pretty complex topic.  You've got various
+   states & modes to worry about, mode maps, common prefixes, etc.  And it
    handles those all pretty well.
    #+BEGIN_SRC emacs-lisp
      (use-package general
@@ -501,11 +500,12 @@ simply can't do in vim. Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
     #+END_SRC
 *** Inflections
-    kebab-case is the one true case. kebab-case loves you. Every other case hates
+    kebab-case is the one true case.  kebab-case loves you.  Every other case hates
     you and wants you to suffer RSI.
     #+BEGIN_SRC emacs-lisp
       (use-package string-inflection
-        :defer t)
+        :defer t
+        :diminish t)
     #+END_SRC
 
 ** In-Buffer Navigation
@@ -544,13 +544,15 @@ simply can't do in vim. Spacemacs nailed this.
    One of my first big gripes when moving to Emacs from vim was, I was used to working with
    per-project vim instances under tmux, so buffers were naturally isolated based on where
    the vim instance was created from.
-   Working in the Emacs GUI, you don't really have that. Buffers are shared across all frames,
+
+   Working in the Emacs GUI, you don't really have that.  Buffers are shared across all frames,
    and if you tend to have multiple projects open (as I do), it can get confusing quickly.
 
    [[https://github.com/bbatsov/projectile][Projectile]] aims to fix that.
    #+BEGIN_SRC emacs-lisp
      (use-package projectile
        :demand t
+       :diminish t
        :init
        (setq
         projectile-cache-file (concat mattlymacs-cache-dir "projectile.cache")
@@ -570,9 +572,9 @@ simply can't do in vim. Spacemacs nailed this.
 
 ** Source Control: Git and Magit
    Sure, I could use mercurial or perforce, but what would that get me? Git is
-   it, and [[https://magit.vc][Magit]] is pretty awesome. I used to prefer the git command line, and 
+   it, and [[https://magit.vc][Magit]] is pretty awesome.  I used to prefer the git command line, and 
    came up with all sorts of pithy aliases in my [[https://github.com/mattly/dotfiles/blob/master/configs/gitconfig#L46][gitconfig]] to handle common
-   operations. I had stockholm syndrome for git's poor user interface. 
+   operations.  I had stockholm syndrome for git's poor user interface.  
    #+BEGIN_SRC emacs-lisp
      (use-package magit
        :commands (magit-status magit-list-repositories)
@@ -613,10 +615,10 @@ simply can't do in vim. Spacemacs nailed this.
     #+END_SRC
 * Lisp
   People who complain about the abundance of parenthesis in lisps miss the
-  point. In over two years of working primarily with lisps full-time, the only
+  point.  In over two years of working primarily with lisps full-time, the only
   times I've had to think about managing parenthesis manually was when I was
-  making a small edit to something in the GitHub editor or the like. And sure,
-  I usually screw it up. But the whole point of having parenthesis and spaces
+  making a small edit to something in the GitHub editor or the like.  And sure,
+  I usually screw it up.  But the whole point of having parenthesis and spaces
   as your primary syntax delimiters is to enable _structural editing_, a
   powerful idea and practice that's difficult to execute well in languages which
   complicate their syntax away from its strucutre.
@@ -625,12 +627,12 @@ simply can't do in vim. Spacemacs nailed this.
   a closing paren, bracket, quote, or such, or highlights its compliement, you 
   already practice a weak form of structural editing -- the editor knows that 
   certain characters form nodes in a syntax tree, and helps to both ensure the
-  integrity of that tree and highlight its structure. Structural editing is that,
+  integrity of that tree and highlight its structure.  Structural editing is that,
   but much more powerful.
   
 ** Parinfer
    As an initial experiment, I'm seeing how far I can get with the lighter
-   weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier. I used
+   weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier.  I used
    parinfer solely when trying out Atom briefly, and while I feel Atom has a long
    way to go before it's really usable for me, I did quite like parinfer.
 
