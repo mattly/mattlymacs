@@ -1016,10 +1016,11 @@ simply can't do in vim.  Spacemacs nailed this.
          :defer t
          :diminish t
          :after org
-         :config
+         :config)
          ;; (add-hook 'org-mode-hook 'evil-org-mode)
-         (add-hook 'evil-org-mode-hook
-             (lambda () (evil-org-set-key-theme)))) 
+         ;; (add-hook 'evil-org-mode-hook
+         ;;     (lambda () (evil-org-set-key-theme)))
+   
      #+END_SRC
 *** key bindings
     I was hoping to make an evil-mode similar to spacemacs' =evil-lisp-state=
