@@ -606,10 +606,40 @@ simply can't do in vim.  Spacemacs nailed this.
 *** Evil for Magit
     I still want evil-bindings everywhere, though.
     #+BEGIN_SRC emacs-lisp
-      (use-package evil-magit
-        :init
-        (with-eval-after-load 'magit
-          (require 'evil-magit)))
+      ;; (use-package evil-magit
+      ;;   :init
+      ;;   (with-eval-after-load 'magit
+      ;;     (require 'evil-magit)))
+    #+END_SRC
+    
+    #+BEGIN_SRC emacs-lisp
+      (general-define-key
+       :keymaps
+       '(magit-mode-map
+         magit-status-mode-map
+         magit-file-section-map
+         magit-unstaged-section-map
+         magit-staged-section-map
+         magit-refs-mode-map
+         magit-blame-mode-map
+         magit-hunk-section-map
+         magit-diff-mode-map
+         magit-log-read-revs-map
+         magit-log-mode-map
+         magit-log-select-mode-map
+         magit-cherry-mode-map
+         magit-reflog-mode-map
+         magit-process-mode-map
+         magit-stash-mode-map)
+       "i" 'magit-section-forward-sibling
+       "e" 'magit-section-forward
+       "n" 'magit-section-backward-sibling
+       "u" 'magit-section-backward
+       "j" 'magit-unstage
+       "J" 'magit-unstage-all)
+
+      (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "u") (string-to-char "j"))
+      (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "U") (string-to-char "J"))
     #+END_SRC
 
 *** Committing
@@ -650,6 +680,15 @@ simply can't do in vim.  Spacemacs nailed this.
   integrity of that tree and highlight its structure.  Structural editing is that,
   but much more powerful.
   
+** Lisp Mode
+   #+BEGIN_SRC emacs-lisp
+     (defvar lisp-mode-hook nil)
+     "A list of hooks to run when entering a lisp mode."
+
+     (defun run-lisp-mode-hook ()
+       (run-hooks 'lisp-mode-hook))
+   #+END_SRC
+  
 ** Parinfer
    As an initial experiment, I'm seeing how far I can get with the lighter
    weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier.  I used
@@ -666,7 +705,7 @@ simply can't do in vim.  Spacemacs nailed this.
                   pretty-parens
                   evil
                   smart-yank))
-         (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)))
+         (add-hook 'lisp-mode-hook #'parinfer-mode)))
    #+END_SRC
 
 ** Lispy
@@ -674,7 +713,7 @@ simply can't do in vim.  Spacemacs nailed this.
      (use-package lispy)
      (use-package evil-lispy)
 
-     (add-hook 'emacs-lisp-mode-hook #'evil-lispy-mode)
+     (add-hook 'lisp-mode-hook #'evil-lispy-mode)
    #+END_SRC
 
 * Key Bindings
@@ -944,9 +983,13 @@ simply can't do in vim.  Spacemacs nailed this.
        (progn
          (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
          (add-to-list 'magic-mode-alist '("#!.*boot\\s-*$" . clojure-mode)))
-       :config)
+       :config
+       (add-hook 'clojure-mode-hook #'run-lisp-mode-hook))
    #+END_SRC
 ** Emacs Lisp
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'emacs-lisp-mode-hook #'run-lisp-mode-hook)
+   #+END_SRC
 ** Org
    Org is as close to a realization of the editable, interactive, embeddable
    content varietal document as I've seen since Steve Jobs killed OpenDoc back
