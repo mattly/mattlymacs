@@ -1,6 +1,6 @@
 *.elc
 *~
-config.el
+# config.el
 custom.el
 recentf
 cache/*
