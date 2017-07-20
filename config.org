@@ -991,6 +991,11 @@ simply can't do in vim.  Spacemacs nailed this.
    #+BEGIN_SRC emacs-lisp
      (add-hook 'emacs-lisp-mode-hook #'run-lisp-mode-hook)
    #+END_SRC
+** Markdown
+   #+BEGIN_SRC emacs-lisp
+     (use-package markdown-mode
+       :defer t)
+   #+END_SRC
 ** Org
    Org is as close to a realization of the editable, interactive, embeddable
    content varietal document as I've seen since Steve Jobs killed OpenDoc back
