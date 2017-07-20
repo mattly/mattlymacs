@@ -482,27 +482,6 @@ simply can't do in vim.  Spacemacs nailed this.
         (setq origami-show-fold-header t)
         (global-origami-mode))
     #+END_SRC
-*** SmartParens
-    #+BEGIN_SRC emacs-lisp
-      (use-package smartparens
-        :defer t
-        :commands (sp-split-sexp sp-newline sp-up-sexp)
-        :diminish t
-        :init
-        (setq sp-autowrap-region nil ; let others handle this
-              sp-highlight-pair-overlay t
-              sp-cancel-autoskip-on-backward-movement nil
-              sp-show-pair-delay 0.2
-              sp-show-pair-from-inside t)
-        :config
-        (require 'smartparens-config)
-        (add-hook 'prog-mode-hook #'smartparens-mode)
-        ;; sp interferes with replace-mode
-        (add-hook 'evil-replace-state-entry-hook #'turn-off-smartparens-mode)
-        (add-hook 'evil-replace-state-exit-hook #'turn-on-smartparens-mode)
-
-        (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
-    #+END_SRC
 *** Whitespace
     #+BEGIN_SRC emacs-lisp
       (setq-default indent-tabs-mode nil
@@ -517,8 +496,51 @@ simply can't do in vim.  Spacemacs nailed this.
     #+END_SRC
 
 *** Delimiters
-    #+BEGIN_SRC emacs-lisp
-    #+END_SRC
+
+**** SmartParens
+     #+BEGIN_SRC emacs-lisp
+       (use-package smartparens
+         :defer t
+         :commands (sp-split-sexp sp-newline sp-up-sexp)
+         :init
+         (setq sp-autowrap-region nil ; let others handle this
+               sp-highlight-pair-overlay t
+               sp-cancel-autoskip-on-backward-movement nil
+               sp-show-pair-delay 0.2
+               sp-show-pair-from-inside t)
+         :config
+         (require 'smartparens-config)
+         (add-hook 'prog-mode-hook #'smartparens-mode)
+         ;; sp interferes with replace-mode
+         (add-hook 'evil-replace-state-entry-hook #'turn-off-smartparens-mode)
+         (add-hook 'evil-replace-state-exit-hook #'turn-on-smartparens-mode)
+
+         (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil))
+     #+END_SRC
+
+**** Rainbow Delimiters
+     #+BEGIN_SRC emacs-lisp
+       (use-package rainbow-delimiters
+         :defer t
+         :init
+         (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+     #+END_SRC
+
+**** Highlight Parens
+     #+BEGIN_SRC emacs-lisp
+       (use-package highlight-parentheses
+         :defer t
+         :init
+         (progn
+           (add-hook 'prog-mode-hook #'highlight-parentheses-mode)
+           (setq hl-paren-delay 0.2)
+           (setq hl-paren-colors '("Springgreen3"
+                                   "IndianRed1"
+                                   "IndianRed3"
+                                   "IndianRed4")))
+         :config
+         (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold))
+     #+END_SRC
 *** Inflections
     kebab-case is the one true case.  kebab-case loves you.  Every other case hates
     you and wants you to suffer RSI.
@@ -709,13 +731,6 @@ simply can't do in vim.  Spacemacs nailed this.
          (add-hook 'lisp-mode-hook #'parinfer-mode)))
    #+END_SRC
 
-** Lispy
-   #+BEGIN_SRC emacs-lisp
-     (use-package lispy)
-     (use-package evil-lispy)
-
-     (add-hook 'lisp-mode-hook #'evil-lispy-mode)
-   #+END_SRC
 
 * Key Bindings
 ** At-Rest (Normal & Visual) immediate mappings
@@ -760,7 +775,6 @@ simply can't do in vim.  Spacemacs nailed this.
        "Q" 'evil-replace-state
        "z" 'evil-open-below
        "Z" 'evil-open-above
-
        "d" 'evil-delete
        "D" 'evil-delete-line
 
@@ -772,7 +786,11 @@ simply can't do in vim.  Spacemacs nailed this.
        "c" 'evil-yank
        "C" 'evil-yank-line
        "v" 'evil-paste-after
-       "V" 'evil-paste-before)
+       "V" 'evil-paste-before
+
+       "a" 'evil-visual-char
+       "A" 'evil-visual-line
+       "C-a" 'evil-visual-block)
     #+END_SRC
 *** Et Cetera
     #+BEGIN_SRC emacs-lisp
@@ -969,7 +987,7 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-main-menu
        :infix "\\"
        "" '(:ignore t :which-key "config")
-       "d" '(mattly|find-dotfile :which-key "find init.org")
+       "d" '(mattly|find-dotfile :which-key "find config.org")
        "p" '(auto-package-update-now :which-key "update packages")
        "r" '(mattly|reload-init :which-key "reload"))
     #+END_SRC
