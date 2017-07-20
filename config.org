@@ -638,8 +638,9 @@ simply can't do in vim.  Spacemacs nailed this.
        "j" 'magit-unstage
        "J" 'magit-unstage-all)
 
-      (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "u") (string-to-char "j"))
-      (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "U") (string-to-char "J"))
+      (with-eval-after-load 'magit
+        (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "u") (string-to-char "j"))
+        (magit-change-popup-key 'magit-dispatch-popup :actions (string-to-char "U") (string-to-char "J")))
     #+END_SRC
 
 *** Committing
