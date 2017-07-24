@@ -431,9 +431,9 @@ simply can't do in vim.  Spacemacs nailed this.
    #+END_SRC
 ** Resetting Evil
    #+BEGIN_SRC emacs-lisp
-     ;; (setcdr evil-normal-state-map nil)
-     ;; (setcdr evil-visual-state-map nil)
-     ;; (setcdr evil-motion-state-map nil)
+     (setcdr evil-normal-state-map nil)
+     (setcdr evil-visual-state-map nil)
+     (setcdr evil-motion-state-map nil)
      (setcdr evil-operator-state-map nil)
    #+END_SRC
 * Editor Niceties
@@ -553,7 +553,9 @@ simply can't do in vim.  Spacemacs nailed this.
 ** In-Buffer Navigation
    I'm just trying out avy for now.
    #+BEGIN_SRC emacs-lisp
-     (use-package avy)
+     (use-package avy
+       :config
+       (setq avy-keys '(?a ?r ?s ?t ?n ?e ?i ?o)))
    #+END_SRC
 ** Miscellany
 *** $EDITOR for child processes
@@ -735,6 +737,11 @@ simply can't do in vim.  Spacemacs nailed this.
 * Key Bindings
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
+*** Reset
+    #+BEGIN_SRC emacs-lisp
+      (bind-navigation
+       "?" 'which-key-show-top-level)
+    #+END_SRC
 *** Navigation
     #+BEGIN_SRC emacs-lisp
       ;; (define-key evil-operator-state-map "i" nil)
@@ -746,6 +753,10 @@ simply can't do in vim.  Spacemacs nailed this.
        "e" 'evil-next-line
        "n" 'evil-backward-word-begin
        "i" 'evil-forward-word-begin
+       "o" 'evil-forward-word-end
+
+       "k" 'evil-find-char
+       "K" 'evil-find-char-to
 
        "L" 'back-to-indentation
        "U" 'evil-backward-paragraph
@@ -756,7 +767,10 @@ simply can't do in vim.  Spacemacs nailed this.
        "E" 'evil-forward-paragraph
 
        "j" 'evil-scroll-page-up
-       "h" 'evil-scroll-page-down)
+       "h" 'evil-scroll-page-down
+
+       "'" 'avy-goto-char-2
+       "/" '(swiper :which-key "swiper"))
 
       (define-key evil-operator-state-map "r" evil-inner-text-objects-map)
       (define-key evil-operator-state-map "s" evil-outer-text-objects-map)
@@ -796,7 +810,6 @@ simply can't do in vim.  Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
       (bind-navigation
        "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
-       "/" '(swiper :which-key "swiper")
        "M-=" '(zoom-in :which-key "zoom in")
        "M--" '(zoom-out :which-key "zoom out")
        "M-x" '(counsel-M-x :which-key "counsel-M-x"))
@@ -918,18 +931,18 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-main-menu
        :infix "w"
        "" '(:ignore t :which-key "window")
-       "h" '(evil-window-left :which-key "go left")
-       "j" '(evil-window-down :which-key "go down")
-       "k" '(evil-window-up :which-key "go up")
-       "l" '(evil-window-right :which-key "go right")
+       "u" '(evil-window-up :which-key "go window up")
+       "e" '(evil-window-down :which-key "go window down")
+       "n" '(evil-window-left :which-key "go window left")
+       "i" '(evil-window-right :which-key "go window right")
        "m" '(:ignore t :which-key "move")
-       "m h" '(evil-window-move-far-left :which-key "far left")
-       "m j" '(evil-window-move-very-bottom :which-key "far bottom")
-       "m k" '(evil-window-move-very-top :which-key "far top")
-       "m l" '(evil-window-move-far-right :which-key "far right")
+       "m u" '(evil-window-move-very-top :which-key "window far top")
+       "m e" '(evil-window-move-very-bottom :which-key "window far bottom")
+       "m n" '(evil-window-move-far-left :which-key "window far left")
+       "m i" '(evil-window-move-far-right :which-key "window far right")
        "s" '(evil-window-split :which-key "split left")
        "v" '(evil-window-vsplit :which-key "split below")
-       "d" '(evil-window-delete :which-key "delete"))
+       "d" '(evil-window-delete :which-key "delete window"))
     #+END_SRC
 
 *** x is for Text
@@ -1149,5 +1162,6 @@ simply can't do in vim.  Spacemacs nailed this.
       :states '(normal visual)
       :keymaps 'org-src-mode-map
       "c" '(org-edit-src-exit :which-key "save and exit")
+      "," '(org-edit-src-exit :which-key "save and exit")
       "k" '(org-edit-src-abort :which-key "abort and exit"))
   #+END_SRC
