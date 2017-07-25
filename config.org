@@ -762,12 +762,15 @@ simply can't do in vim.  Spacemacs nailed this.
        "U" 'evil-backward-paragraph
        "Y" 'evil-end-of-line
 
+       "E" 'evil-forward-paragraph
        "N" 'evil-backward-sentence-begin
        "I" 'evil-forward-sentence-begin
-       "E" 'evil-forward-paragraph
+       "O" 'evil-forward-WORD-end
 
        "j" 'evil-scroll-page-up
        "h" 'evil-scroll-page-down
+       "J" 'evil-goto-first-line
+       "H" 'evil-goto-line
 
        "'" 'avy-goto-char-2
        "/" '(swiper :which-key "swiper"))
