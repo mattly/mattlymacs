@@ -772,6 +772,18 @@ simply can't do in vim.  Spacemacs nailed this.
        "J" 'evil-goto-first-line
        "H" 'evil-goto-line
 
+       "m" '(:ignore t :which-key "fold")
+       "m c" '(origami-close-node :which-key "close")
+       "m C" '(origami-close-node-recursively :which-key "close recursively") 
+       "m m" '(origami-forward-toggle-node :which-key "toggle")
+       "m M" '(origami-toggle-all-nodes :which-key "toggle recursively")
+       "m o" '(origami-open-node :which-key "open")
+       "m O" '(origami-open-node-recursively :which-key "open recursively")
+       "m a" '(origami-open-all-nodes :which-key "open all")
+       "m A" '(origami-close-all-nodes :which-key "close all")
+       "m e" '(origami-next-fold :which-key "go next")
+       "m u" '(origami-previous-fold :which-key "go previous")
+
        "'" 'avy-goto-char-2
        "/" '(swiper :which-key "swiper"))
 
@@ -965,37 +977,6 @@ simply can't do in vim.  Spacemacs nailed this.
        "i U" '(string-inflection-upcase :which-key "UP_CASE")) ;; oh right you think `-` is math because you have a crap parser.
     #+END_SRC
 
-*** z is for Folding
-    This is even more of a stretch. But it ties into existing folding under
-    =z=. I'm using a hydra for this because it makes naviation easier.
-    #+BEGIN_SRC emacs-lisp
-      (defhydra mattly|folding (:color pink)
-        "
-      Close^^          Open^^           Toggle^^        Goto^^
-      -----^^--------- ----^^---------- ------^^------- ----^^----
-      _c_: at point    _o_: at point    _a_: at point   _n_: next
-      _C_: recursively _O_: recursively _A_: all        _p_: previous
-      _m_: all         _r_: all         _TAB_: like org
-      "
-        ("c" origami-close-node)
-        ("C" origami-close-node-recursively)
-        ("m" origami-close-all-nodes)
-        ("o" origami-open-node)
-        ("O" origami-open-node-recursively)
-        ("a" origami-forward-toggle-node)
-        ("r" origami-open-all-nodes)
-        ("A" origami-toggle-all-nodes)
-        ("TAB" origami-recursively-toggle-node)
-        ("<tab>" origami-recursively-toggle-node)
-        ("n" origami-next-fold)
-        ("p" origami-previous-fold)
-        ("q" nil :exit t)
-        ("C-g" nil :exit t)
-        ("<SPC>" nil :exit t))
-
-      (bind-main-menu
-       "z" '(mattly|folding/body :which-key "folding"))
-    #+END_SRC
 
 *** \ is for This Config
     The stretchiest stretch of them all.
