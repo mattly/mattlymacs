@@ -737,11 +737,6 @@ simply can't do in vim.  Spacemacs nailed this.
 * Key Bindings
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
-*** Reset
-    #+BEGIN_SRC emacs-lisp
-      (bind-navigation
-       "?" 'which-key-show-top-level)
-    #+END_SRC
 *** Navigation
     #+BEGIN_SRC emacs-lisp
       ;; (define-key evil-operator-state-map "i" nil)
@@ -825,6 +820,7 @@ simply can't do in vim.  Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
       (bind-navigation
        "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
+       "?" 'which-key-show-top-level
        "M-=" '(zoom-in :which-key "zoom in")
        "M--" '(zoom-out :which-key "zoom out")
        "M-x" '(counsel-M-x :which-key "counsel-M-x"))
