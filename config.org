@@ -310,7 +310,7 @@ simply can't do in vim.  Spacemacs nailed this.
 ** Font
    Iosevka is really nice.
    #+BEGIN_SRC emacs-lisp
-     (defvar mattly-font "Iosevka Light 14")
+     (defvar mattly-font "Iosevka Light 16")
      (set-face-attribute 'default nil :font mattly-font)
      (set-frame-font mattly-font nil t)
    #+END_SRC
