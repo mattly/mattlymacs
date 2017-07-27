@@ -329,7 +329,16 @@ simply can't do in vim.  Spacemacs nailed this.
      (require 'akkala-themes)
      (load-theme 'akkala-basic)
    #+END_SRC
-
+** Icons
+   #+BEGIN_SRC emacs-lisp
+     (use-package all-the-icons
+       :commands (all-the-icons-octicon
+                  all-the-icons-faicon
+                  all-the-icons-fileicon
+                  all-the-icons-wicon
+                  all-the-icons-material
+                  all-the-icons-alltheicon))
+   #+END_SRC
 ** Evil Mode
    A necessary evil.  I don't have much to say about this beyond what I said at
    the beginning.  A tidbit at the end of the =:config= section sets up the "correct"
@@ -611,9 +620,36 @@ simply can't do in vim.  Spacemacs nailed this.
         '(".git" ".hg" ".project" "package.json"))
        :config
        (add-hook 'mattlymacs-init-hook #'projectile-mode))
+   #+END_SRC
+   
+   #+BEGIN_SRC emacs-lisp
+     (use-package counsel-projectile)
+
+     (counsel-projectile-on)
 
    #+END_SRC
-
+** Persp
+   #+BEGIN_SRC emacs-lisp
+     (use-package persp-mode
+       :config
+       (setq persp-autokill-buffer-on-remove 'kill-weak
+             persp-nil-name "nil"
+             persp-nil-hidden t
+             persp-auto-save-fname "autosave"
+             persp-save-dir (concat mattlymacs-local-dir "persp/")
+             persp-set-last-persp-for-new-frames nil
+             persp-switch-to-added-buffer nil
+             persp-remove-buffers-from-nil-persp-behavior nil
+             persp-init-frame-behavior t
+             persp-init-new-frame-behavior-override 'auto-temp
+             persp-auto-resume-time -1))
+   #+END_SRC
+** Neotree
+   #+BEGIN_SRC emacs-lisp
+     (use-package neotree
+       :config
+       (setq neo-theme 'all-the-icons))
+   #+END_SRC
 ** Source Control: Git and Magit
    Sure, I could use mercurial or perforce, but what would that get me? Git is
    it, and [[https://magit.vc][Magit]] is pretty awesome.  I used to prefer the git command line, and 
