@@ -699,13 +699,6 @@ simply can't do in vim.  Spacemacs nailed this.
 *** Evil for Magit
     I still want evil-bindings everywhere, though.
     #+BEGIN_SRC emacs-lisp
-      ;; (use-package evil-magit
-      ;;   :init
-      ;;   (with-eval-after-load 'magit
-      ;;     (require 'evil-magit)))
-    #+END_SRC
-    
-    #+BEGIN_SRC emacs-lisp
       (general-define-key
        :keymaps
        '(magit-mode-map
