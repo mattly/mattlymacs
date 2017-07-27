@@ -406,6 +406,9 @@ simply can't do in vim.  Spacemacs nailed this.
                               :keymaps '(evil-inner-text-objects-map))
       (general-create-definer bind-outer-object
                               :keymaps '(evil-outer-text-objects-map))
+
+      (general-create-definer bind-insert
+                              :keymaps '(evil-insert-state-map))
     #+END_SRC
 
     =bind-main-menu= makes bindings for the global menu system on =SPC= for
@@ -427,10 +430,6 @@ simply can't do in vim.  Spacemacs nailed this.
     #+END_SRC
 ** evil Plugins 
 *** evil-commentary
-    Automatically sets up =gc= and =gcc= similar to the vim plugin, also provides:
-
-    - =gy= :: yanks (copies) the uncommented code, and comments the motion out
-    - =s-/= :: comments out the current line, similar to =gcc=
    #+BEGIN_SRC emacs-lisp
      (use-package evil-commentary
        :commands (evil-commentary evil-commentary-yank evil-commentary-line)
@@ -438,6 +437,10 @@ simply can't do in vim.  Spacemacs nailed this.
        :config
        (evil-commentary-mode 1))
    #+END_SRC
+*** evil-surround
+    #+BEGIN_SRC emacs-lisp
+      (use-package evil-surround)
+    #+END_SRC
 ** Resetting Evil
    #+BEGIN_SRC emacs-lisp
      (setcdr evil-normal-state-map nil)
@@ -473,7 +476,7 @@ simply can't do in vim.  Spacemacs nailed this.
        :config
        (setq ivy-use-virtual-buffers t
              ivy-height 20
-             ivy-count-format "(%d/%d) ")) 
+             ivy-count-format "(%d/%d) "))
 
      (use-package all-the-icons-ivy
        :diminish t
@@ -565,6 +568,25 @@ simply can't do in vim.  Spacemacs nailed this.
      (use-package avy
        :config
        (setq avy-keys '(?a ?r ?s ?t ?n ?e ?i ?o)))
+
+     (evil-define-motion evil-avy-find-char (count char)
+       "Use avy to move forward to char."
+       :jump t
+       :type inclusive
+       (interactive "<c><C>")
+       (if (null count) (avy-goto-char char)
+         (evil-find-char count char)))
+
+     (evil-define-motion evil-avy-find-char-to (count char)
+       "Use avy to move till char."
+       :jump t
+       :type inclusive
+       (interactive "<c><C>")
+       (if (null count)
+           (progn
+             (avy-goto-char char)
+             (backward-char))
+        (evil-find-char-to count char))) 
    #+END_SRC
 ** Miscellany
 *** $EDITOR for child processes
@@ -724,6 +746,15 @@ simply can't do in vim.  Spacemacs nailed this.
       (use-package gitignore-mode
         :defer t)
     #+END_SRC
+
+* Structural Editing
+  #+BEGIN_SRC emacs-lisp
+    (use-package outshine
+      :config
+      (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+      (add-hook 'prog-mode-hook 'outline-minor-mode))
+  #+END_SRC
+  
 * Lisp
   People who complain about the abundance of parenthesis in lisps miss the
   point.  In over two years of working primarily with lisps full-time, the only
@@ -743,10 +774,19 @@ simply can't do in vim.  Spacemacs nailed this.
   
 ** Lisp Mode
    #+BEGIN_SRC emacs-lisp
-     (defvar lisp-mode-hook nil)
-     "A list of hooks to run when entering a lisp mode."
+     (defvar lisp-mode-hook nil
+       "A list of hooks to run when entering a lisp mode.")
 
      (defun run-lisp-mode-hook ()
+       (run-hooks 'lisp-mode-hook))
+
+     (defvar evil-lisp-mode-map (make-sparse-keymap))
+
+     (define-minor-mode evil-lisp-mode
+       "A minor mode for lisp editing in lisp"
+       :lighter " (lisp)"
+       :keymap evil-lisp-mode-map 
+       :init-value nil
        (run-hooks 'lisp-mode-hook))
    #+END_SRC
   
@@ -763,19 +803,47 @@ simply can't do in vim.  Spacemacs nailed this.
        (progn
          (setq parinfer-extensions
                '(defaults
-                  pretty-parens
-                  evil
-                  smart-yank))
+                 pretty-parens
+                 evil
+                 smart-yank))
          (add-hook 'lisp-mode-hook #'parinfer-mode)))
    #+END_SRC
 
+** Evil-Cleverparens
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-cleverparens)
+   #+END_SRC
+
+** Bindings
+   #+BEGIN_SRC emacs-lisp
+     (general-define-key
+      :states '(normal visual motion)
+      :keymaps '(evil-lisp-mode-map)
+      "n" 'evil-cp-backward-symbol-begin
+      "i" 'evil-cp-forward-symbol-begin
+      "o" 'evil-cp-forward-symbol-end
+
+      "N" 'evil-cp-backward-sexp
+      "I" 'evil-cp-forward-sexp
+      "U" 'evil-cp-backward-up-sexp
+      "E" 'evil-cp-next-opening)
+   #+END_SRC
 
 * Key Bindings
+** Insert mappings
+   #+BEGIN_SRC emacs-lisp
+     (bind-insert
+      "C-l" '(left-char)
+      "C-u" '(previous-line)
+      "C-y" '(right-char)
+      "C-n" '(left-word)
+      "C-e" '(next-line)
+      "C-i" '(right-word))
+   #+END_SRC
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
 *** Navigation
     #+BEGIN_SRC emacs-lisp
-      ;; (define-key evil-operator-state-map "i" nil)
       (bind-navigation
        "l" 'evil-backward-char
        "u" 'evil-previous-line
@@ -786,9 +854,6 @@ simply can't do in vim.  Spacemacs nailed this.
        "i" 'evil-forward-word-begin
        "o" 'evil-forward-word-end
 
-       "k" 'evil-find-char
-       "K" 'evil-find-char-to
-
        "L" 'back-to-indentation
        "U" 'evil-backward-paragraph
        "Y" 'evil-end-of-line
@@ -797,6 +862,9 @@ simply can't do in vim.  Spacemacs nailed this.
        "N" 'evil-backward-sentence-begin
        "I" 'evil-forward-sentence-begin
        "O" 'evil-forward-WORD-end
+
+       "k" 'evil-avy-find-char
+       "K" 'evil-avy-find-char-to
 
        "j" 'evil-scroll-page-up
        "h" 'evil-scroll-page-down
@@ -815,11 +883,12 @@ simply can't do in vim.  Spacemacs nailed this.
        "m e" '(origami-next-fold :which-key "go next")
        "m u" '(origami-previous-fold :which-key "go previous")
 
-       "'" 'avy-goto-char-2
        "/" '(swiper :which-key "swiper"))
 
       (define-key evil-operator-state-map "r" evil-inner-text-objects-map)
       (define-key evil-operator-state-map "s" evil-outer-text-objects-map)
+      (define-key evil-operator-state-map "t" 'evil-surround-edit)
+      (define-key evil-operator-state-map "T" 'evil-Surround-edit)
 
     #+END_SRC
 *** Modification
@@ -850,7 +919,11 @@ simply can't do in vim.  Spacemacs nailed this.
 
        "a" 'evil-visual-char
        "A" 'evil-visual-line
-       "C-a" 'evil-visual-block)
+       "C-a" 'evil-visual-block
+
+       "w" '(:ignore t :which-key "modify")
+       "w c" '(evil-commentary :which-key "comment (operator)")
+       "w s" '(evil-surround-edit :which-key "comment (operator)"))
     #+END_SRC
 *** Et Cetera
     #+BEGIN_SRC emacs-lisp
@@ -869,7 +942,7 @@ simply can't do in vim.  Spacemacs nailed this.
 *** Top-Level
     #+BEGIN_SRC emacs-lisp
       (bind-main-menu
-       "/" '(counsel-rg :which-key "search in current directory")
+       "/" '(counsel-projectile-ag :which-key "search in current directory")
        "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
        "SPC" '(counsel-M-x :which-key "M-x"))
     #+END_SRC
@@ -879,7 +952,7 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-main-menu
        :infix "b"
        "" '(:ignore t :which-key "buffer")
-       "b" '(ivy-switch-buffer :which-key "switch")
+       "b" '(ivy-switch-buffer :which-key "menu ALL")
        "d" '(evil-delete-buffer :which-key "delete")
        "D" '(kill-buffer-and-window :which-key "delete buffer & window"))
     #+END_SRC
@@ -889,11 +962,13 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-main-menu
        :infix "f"
        "" '(:ignore t :which-key "file")
-       "D" '(delete-file :which-key "delete (any file)")
+       "d" '(counsel-projectile-find-dir :which-key "find dir in project")
        "f" '(counsel-find-file :which-key "find file")
-       "r" '(counsel-recentf :which-key "recent files")
-       "R" '(rename-file :which-key "rename (any file)")
-       "s" '(save-buffer :which-key "save"))
+       "r" '(projectile-recentf :which-key "recent files")
+       "R" '(counsel-recentf :which-key "recent files")
+       "s" '(save-buffer :which-key "save")
+       "SPC k" '(delete :which-key "delete (any file)")
+       "SPC R" '(rename-file :which-key "rename (any file)"))
     #+END_SRC
 
 *** g is for Git
@@ -926,10 +1001,10 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-main-menu
        :infix "p"
        "" '(:ignore t :which-key "project")
-       "b" '(projectile-switch-to-buffer :which-key "switch buffer")
-       "f" '(projectile-find-file :which-key "find file")
+       "b" '(counsel-projectile-switch-to-buffer :which-key "menu")
+       "f" '(counsel-projectile-find-file :which-key "find file in project")
        "p" '(projectile-switch-project :which-key "switch project")
-       "r" '(projectile-recentf :which-key "recent files")
+       "t" '(neotree-toggle :which-key "open neotree")
        "x" '(projectile-invalidate-cache :which-key "invalidate cache"))
     #+END_SRC
 
@@ -1020,9 +1095,24 @@ simply can't do in vim.  Spacemacs nailed this.
        "p" '(auto-package-update-now :which-key "update packages")
        "r" '(mattly|reload-init :which-key "reload"))
     #+END_SRC
+
+** Escape
+   #+BEGIN_SRC emacs-lisp
+     (general-define-key
+      :keymaps '(minibuffer-local-map
+                 minibuffer-local-ns-map
+                 minibuffer-local-compoetion-map
+                 minibuffer-local-must-match-map
+                 minibuffer-local-isearch-map
+                 ivy-minibuffer-map)
+      "<escape>" 'abort-recursive-edit)
+
+     (general-define-key
+      :keymaps '(ivy-minibuffer-map)
+      "<escape>" 'keyboard-escape-quit)
+   #+END_SRC
    
-   
-* Major & Minor Modes (file types, languages, etc)
+* Major Modes (file types, languages, etc)
 ** Clojure
    #+BEGIN_SRC emacs-lisp
      (use-package clojure-mode
@@ -1036,7 +1126,11 @@ simply can't do in vim.  Spacemacs nailed this.
    #+END_SRC
 ** Emacs Lisp
    #+BEGIN_SRC emacs-lisp
-     (add-hook 'emacs-lisp-mode-hook #'run-lisp-mode-hook)
+     (defun mattly|init-emacs-lisp-mode ()
+       (evil-lisp-mode 1)
+       (run-lisp-mode-hook))
+
+     (add-hook 'emacs-lisp-mode-hook #'mattly|init-emacs-lisp-mode)
    #+END_SRC
 ** Markdown
    #+BEGIN_SRC emacs-lisp
