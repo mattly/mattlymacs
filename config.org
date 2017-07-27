@@ -397,9 +397,21 @@ simply can't do in vim.  Spacemacs nailed this.
 
     #+BEGIN_SRC emacs-lisp
       (general-create-definer bind-navigation
-                              :keymaps '(evil-normal-state-map evil-visual-state-map evil-motion-state-map)) 
+                              :keymaps '(evil-normal-state-map evil-visual-state-map evil-motion-state-map))
+      (general-create-definer bind-navigation-for-maps
+                              :states '(evil-normal-state-map evil-visual-state-map evil-motion-state-map))
+
+      (general-create-definer bind-modifier
+                              :keymaps '(evil-normal-state-map evil-visual-state-map))
+      (general-create-definer bind-modifier-for-maps
+                              :states '(evil-normal-state-map evil-visual-state-map))
+
+      (general-create-definer bind-normal
+                              :keymaps '(evil-normal-state-map))
+      (general-create-definer bind-visual
+                              :keymaps '(evil-visual-state-map))
       (general-create-definer bind-motion
-                              :keymaps '(evil-motion-state-map)) 
+                              :keymaps '(evil-motion-state-map))
       (general-create-definer bind-operator
                               :keymaps '(evil-operator-state-map))
       (general-create-definer bind-inner-object
@@ -409,6 +421,8 @@ simply can't do in vim.  Spacemacs nailed this.
 
       (general-create-definer bind-insert
                               :keymaps '(evil-insert-state-map))
+      (general-create-definer bind-insert-for-maps
+                              :states '(evil-insert-state-map))
     #+END_SRC
 
     =bind-main-menu= makes bindings for the global menu system on =SPC= for
@@ -816,8 +830,7 @@ simply can't do in vim.  Spacemacs nailed this.
 
 ** Bindings
    #+BEGIN_SRC emacs-lisp
-     (general-define-key
-      :states '(normal visual motion)
+     (bind-navigation-for-maps
       :keymaps '(evil-lisp-mode-map)
       "n" 'evil-cp-backward-symbol-begin
       "i" 'evil-cp-forward-symbol-begin
@@ -842,6 +855,50 @@ simply can't do in vim.  Spacemacs nailed this.
    #+END_SRC
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
+   
+   #+BEGIN_SRC emacs-lisp
+     (bind-navigation
+      "W" 'undefined
+      "f" 'undefined
+      "F" 'undefined
+      "g" 'undefined
+      "G" 'undefined
+      ";" 'undefined
+      ":" 'undefined
+      "[" 'undefined
+      "{" 'undefined
+      "]" 'undefined
+      "}" 'undefined
+      "\\" 'undefined
+      "|" 'undefined
+      "\'" 'undefined
+      "\"" 'undefined
+      "b" 'undefined
+      "B" 'undefined
+      "M" 'undefined
+      "," 'undefined
+      "<" 'undefined
+      "." 'undefined
+      ">" 'undefined
+      "`" 'undefined
+      "~" 'undefined
+      "!" 'undefined
+      "@" 'undefined
+      "#" 'undefined
+      "$" 'undefined
+      "^" 'undefined
+      "&" 'undefined
+      "*" 'undefined
+      "(" 'undefined
+      "0" 'undefined
+      ")" 'undefined
+      "-" 'undefined
+      "_" 'undefined
+      "=" 'undefined
+      "+" 'undefined
+      "<escape>" 'undefined)
+
+   #+END_SRC
 *** Navigation
     #+BEGIN_SRC emacs-lisp
       (bind-navigation
@@ -883,17 +940,38 @@ simply can't do in vim.  Spacemacs nailed this.
        "m e" '(origami-next-fold :which-key "go next")
        "m u" '(origami-previous-fold :which-key "go previous")
 
-       "/" '(swiper :which-key "swiper"))
+       "/" '(swiper :which-key "swiper")
 
-      (define-key evil-operator-state-map "r" evil-inner-text-objects-map)
-      (define-key evil-operator-state-map "s" evil-outer-text-objects-map)
-      (define-key evil-operator-state-map "t" 'evil-surround-edit)
-      (define-key evil-operator-state-map "T" 'evil-Surround-edit)
+       "x" 'evil-delete-char
+       "X" 'evil-delete-line
+       "c" 'evil-yank
+       "C" 'evil-yank-line
+       "v" 'evil-paste-after
+       "V" 'evil-paste-before
+
+       ;; bring back counts
+       "1" 'digit-argument
+       "2" 'digit-argument
+       "3" 'digit-argument
+       "4" 'digit-argument
+       "5" 'digit-argument
+       "6" 'digit-argument
+       "7" 'digit-argument
+       "8" 'digit-argument
+       "9" 'digit-argument
+
+       "%" 'evil-jump-item)
+
+      (bind-operator
+       "r" evil-inner-text-objects-map
+       "s" evil-outer-text-objects-map
+       "t" 'evil-surround-edit
+       "T" 'evil-Surround-edit)
 
     #+END_SRC
 *** Modification
     #+BEGIN_SRC emacs-lisp
-      (bind-navigation
+      (bind-modifier
        "r" 'evil-insert
        "R" 'evil-insert-line
        "s" 'evil-append
@@ -907,16 +985,6 @@ simply can't do in vim.  Spacemacs nailed this.
        "d" 'evil-delete
        "D" 'evil-delete-line
 
-       "p" 'undo-tree-undo
-       "P" 'undo-tree-redo
-
-       "x" 'evil-delete-char
-       "X" 'evil-delete-line
-       "c" 'evil-yank
-       "C" 'evil-yank-line
-       "v" 'evil-paste-after
-       "V" 'evil-paste-before
-
        "a" 'evil-visual-char
        "A" 'evil-visual-line
        "C-a" 'evil-visual-block
@@ -924,6 +992,14 @@ simply can't do in vim.  Spacemacs nailed this.
        "w" '(:ignore t :which-key "modify")
        "w c" '(evil-commentary :which-key "comment (operator)")
        "w s" '(evil-surround-edit :which-key "comment (operator)"))
+
+      (bind-normal
+       "p" 'undo-tree-undo
+       "P" 'undo-tree-redo)
+
+      (bind-visual
+       "z" 'exchange-point-and-mark
+       "Z" 'evil-visual-exchange-corners)
     #+END_SRC
 *** Et Cetera
     #+BEGIN_SRC emacs-lisp
