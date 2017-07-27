@@ -675,9 +675,6 @@ simply can't do in vim.  Spacemacs nailed this.
              persp-save-dir (concat mattlymacs-local-dir "persp/")
              persp-set-last-persp-for-new-frames nil
              persp-switch-to-added-buffer nil
-             persp-remove-buffers-from-nil-persp-behavior nil
-             persp-init-frame-behavior t
-             persp-init-new-frame-behavior-override 'auto-temp
              persp-auto-resume-time -1))
    #+END_SRC
 ** Neotree
