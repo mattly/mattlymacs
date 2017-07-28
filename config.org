@@ -1077,6 +1077,7 @@ simply can't do in vim.  Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
       (bind-main-menu
        "/" '(counsel-projectile-ag :which-key "search in current directory")
+       "`" '(ivy-resume :which-key "ivy resume")
        "TAB" '(ivy-switch-buffer :which-key "ivy buffer")
        "SPC" '(counsel-M-x :which-key "M-x"))
     #+END_SRC
