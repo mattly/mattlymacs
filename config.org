@@ -1257,17 +1257,16 @@ simply can't do in vim.  Spacemacs nailed this.
          (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
          (add-to-list 'magic-mode-alist '("#!.*boot\\s-*$" . clojure-mode)))
        :config
-       (add-hook 'clojure-mode-hook #'run-lisp-mode-hook))
+       (add-hook 'clojure-mode-hook #'evil-lisp-mode))
    #+END_SRC
 ** Emacs Lisp
    #+BEGIN_SRC emacs-lisp
      (defun mattly|init-emacs-lisp-mode ()
-       (evil-lisp-mode 1)
-       (run-lisp-mode-hook))
+      (evil-lisp-mode 1))
 
      (add-hook 'emacs-lisp-mode-hook #'mattly|init-emacs-lisp-mode)
    #+END_SRC
-** Markdown
+** Markdown 
    #+BEGIN_SRC emacs-lisp
      (use-package markdown-mode
        :defer t)
