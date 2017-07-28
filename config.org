@@ -399,21 +399,27 @@ simply can't do in vim.  Spacemacs nailed this.
       (general-create-definer bind-navigation
                               :keymaps '(evil-normal-state-map evil-visual-state-map evil-motion-state-map))
       (general-create-definer bind-navigation-for-maps
-                              :states '(evil-normal-state-map evil-visual-state-map evil-motion-state-map))
+                              :states '(normal visual motion))
 
       (general-create-definer bind-modifier
                               :keymaps '(evil-normal-state-map evil-visual-state-map))
       (general-create-definer bind-modifier-for-maps
-                              :states '(evil-normal-state-map evil-visual-state-map))
+                              :states '(normal visual))
 
       (general-create-definer bind-normal
                               :keymaps '(evil-normal-state-map))
+      (general-create-definer bind-normal-for-maps
+                              :states '(normal))
       (general-create-definer bind-visual
                               :keymaps '(evil-visual-state-map))
       (general-create-definer bind-motion
                               :keymaps '(evil-motion-state-map))
+
       (general-create-definer bind-operator
                               :keymaps '(evil-operator-state-map))
+      (general-create-definer bind-operator-for-maps
+                              :states '(operator))
+
       (general-create-definer bind-inner-object
                               :keymaps '(evil-inner-text-objects-map))
       (general-create-definer bind-outer-object
@@ -422,7 +428,7 @@ simply can't do in vim.  Spacemacs nailed this.
       (general-create-definer bind-insert
                               :keymaps '(evil-insert-state-map))
       (general-create-definer bind-insert-for-maps
-                              :states '(evil-insert-state-map))
+                              :states '(insert))
 
       (general-create-definer bind-everywhere
                               :keymaps 'global
@@ -539,7 +545,8 @@ simply can't do in vim.  Spacemacs nailed this.
          :defer t
          :commands (sp-split-sexp sp-newline sp-up-sexp)
          :init
-         (setq sp-autowrap-region nil ; let others handle this
+         (setq sp-autoinsert-pair t
+               sp-autowrap-region nil ; let others handle this
                sp-highlight-pair-overlay t
                sp-cancel-autoskip-on-backward-movement nil
                sp-show-pair-delay 0.2
@@ -769,69 +776,86 @@ simply can't do in vim.  Spacemacs nailed this.
       (add-hook 'prog-mode-hook 'outline-minor-mode))
   #+END_SRC
   
-* Lisp
-  People who complain about the abundance of parenthesis in lisps miss the
-  point.  In over two years of working primarily with lisps full-time, the only
-  times I've had to think about managing parenthesis manually was when I was
-  making a small edit to something in the GitHub editor or the like.  And sure,
-  I usually screw it up.  But the whole point of having parenthesis and spaces
-  as your primary syntax delimiters is to enable _structural editing_, a
-  powerful idea and practice that's difficult to execute well in languages which
-  complicate their syntax away from its strucutre.
+** Lisp
+   People who complain about the abundance of parenthesis in lisps miss the
+   point.  In over two years of working primarily with lisps full-time, the only
+   times I've had to think about managing parenthesis manually was when I was
+   making a small edit to something in the GitHub editor or the like.  And sure,
+   I usually screw it up.  But the whole point of having parenthesis and spaces
+   as your primary syntax delimiters is to enable _structural editing_, a
+   powerful idea and practice that's difficult to execute well in languages which
+   complicate their syntax away from its strucutre.
   
-  If you use an auto-close or auto-pair style plugin, that automatically inserts
-  a closing paren, bracket, quote, or such, or highlights its compliement, you 
-  already practice a weak form of structural editing -- the editor knows that 
-  certain characters form nodes in a syntax tree, and helps to both ensure the
-  integrity of that tree and highlight its structure.  Structural editing is that,
-  but much more powerful.
+   If you use an auto-close or auto-pair style plugin, that automatically inserts
+   a closing paren, bracket, quote, or such, or highlights its compliement, you 
+   already practice a weak form of structural editing -- the editor knows that 
+   certain characters form nodes in a syntax tree, and helps to both ensure the
+   integrity of that tree and highlight its structure.  Structural editing is that,
+   but much more powerful.
   
-** Parinfer
-   As an initial experiment, I'm seeing how far I can get with the lighter
-   weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier.  I used
-   parinfer solely when trying out Atom briefly, and while I feel Atom has a long
-   way to go before it's really usable for me, I did quite like parinfer.
+*** Parinfer
+    As an initial experiment, I'm seeing how far I can get with the lighter
+    weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier.  I used
+    parinfer solely when trying out Atom briefly, and while I feel Atom has a long
+    way to go before it's really usable for me, I did quite like parinfer.
 
-   #+BEGIN_SRC emacs-lisp
-     (use-package parinfer
-       :init
-       (setq parinfer-extensions
-             '(defaults
-               pretty-parens
-               evil
-               SMART-yank)))
-   #+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (use-package parinfer
+        :init
+        (setq parinfer-extensions
+              '(defaults
+                pretty-parens
+                evil
+                smart-tab
+                smart-yank)
+              parinfer-lighters '("➤" . "⸨⸩")))
+    #+END_SRC
 
-** Evil-Cleverparens
-   #+BEGIN_SRC emacs-lisp
-     (use-package evil-cleverparens)
-   #+END_SRC
+*** Evil-Cleverparens
+    #+BEGIN_SRC emacs-lisp
+      (use-package evil-cleverparens)
+    #+END_SRC
   
-** Lisp Mode
-   #+BEGIN_SRC emacs-lisp
-     (defvar evil-lisp-mode-map (make-sparse-keymap))
+*** Lisp Mode
+    #+BEGIN_SRC emacs-lisp
+      (defvar evil-lisp-mode-map (make-sparse-keymap))
 
-     (define-minor-mode evil-lisp-mode
-       "A minor mode for lisp editing in lisp"
-       :init-value nil
-       :lighter " (lisp)"
-       :keymap evil-lisp-mode-map 
-       (parinfer-mode 1))
-   #+END_SRC
+      (define-minor-mode evil-lisp-mode
+        "A minor mode for lisp editing in lisp"
+        :init-value nil
+        :lighter " (lisp)"
+        :keymap evil-lisp-mode-map 
+        (parinfer-mode 1))
 
-** Bindings
-   #+BEGIN_SRC emacs-lisp
-     (bind-navigation-for-maps
-      :keymaps '(evil-lisp-mode-map)
-      "n" 'evil-cp-backward-symbol-begin
-      "i" 'evil-cp-forward-symbol-begin
-      "o" 'evil-cp-forward-symbol-end
+      (bind-navigation-for-maps
+       :keymaps '(evil-lisp-mode-map)
+       "N" 'evil-cp-backward-symbol-begin
+       "I" 'evil-cp-forward-symbol-begin
+       "O" 'evil-cp-forward-symbol-end
 
-      "N" 'evil-cp-backward-sexp
-      "I" 'evil-cp-forward-sexp
-      "U" 'evil-cp-backward-up-sexp
-      "E" 'evil-cp-next-opening)
-   #+END_SRC
+       "`" '(parinfer-toggle-mode))
+
+      (bind-modifier-for-maps
+       :keymaps 'evil-lisp-mode-map
+       "\C-s" 'evil-cp-insert-at-end-of-form
+       "\C-r" 'evil-cp-insert-at-beginning-of-form
+       "\C-t" 'evil-cp-change-sexp
+       "\C-d" 'evil-cp-delete-sexp
+       "\C-z" 'evil-cp-open-below-form
+       "\C-Z" 'evil-cp-open-below-form
+
+       ">" 'sp-forward-barf-sexp
+       "<" 'sp-forward-slurp-sexp
+
+       "w J" 'sp-join-sexp
+       "w S" 'sp-split-sexp
+       "w n" 'evil-cp-drag-backward
+       "w i" 'evil-cp-drag-forward
+       "w TAB" 'sp-indent-defun)
+
+      (define-key parinfer-mode-map [tab] 'parinfer-smart-tab:forward-char)
+      (define-key parinfer-mode-map [backtab] 'parinfer-smart-tab:backward-char)
+    #+END_SRC
 
 * Key Bindings
 ** Insert mappings
@@ -854,20 +878,14 @@ simply can't do in vim.  Spacemacs nailed this.
        "F" 'undefined
        "g" 'undefined
        "G" 'undefined
-       ";" 'undefined
-       ":" 'undefined
        "[" 'undefined
        "{" 'undefined
        "]" 'undefined
        "}" 'undefined
        "\\" 'undefined
        "|" 'undefined
-       "\'" 'undefined
-       "\"" 'undefined
        "b" 'undefined
        "B" 'undefined
-       "m" 'undefined
-       "M" 'undefined
        "," 'undefined
        "<" 'undefined
        "." 'undefined
@@ -976,13 +994,18 @@ simply can't do in vim.  Spacemacs nailed this.
        "I" 'evil-forward-sentence-begin
        "O" 'evil-forward-WORD-end
 
-       "k" 'evil-avy-find-char
-       "K" 'evil-avy-find-char-to
+       "m" 'evil-find-char
+       "M" 'evil-find-char-to
 
        "j" 'evil-scroll-page-up
        "h" 'evil-scroll-page-down
        "J" 'evil-goto-first-line
        "H" 'evil-goto-line
+
+       "k" '(:ignore t :which-key "nav")
+       "k k" 'evil-jump-item
+       "k u" 'outline-previous-visible-heading
+       "k e" 'outline-next-visible-heading
 
        "/" '(swiper :which-key "swiper")
 
@@ -1006,11 +1029,22 @@ simply can't do in vim.  Spacemacs nailed this.
 
        "%" 'evil-jump-item)
 
+
       (bind-operator
        "r" evil-inner-text-objects-map
        "s" evil-outer-text-objects-map
        "t" 'evil-surround-edit
        "T" 'evil-Surround-edit)
+
+      ;; hello
+      (bind-inner-object
+       "f" 'evil-cp-inner-form
+       "c" 'evil-cp-inner-comment
+       "d" 'evil-cp-inner-defun)
+      (bind-outer-object
+       "f" 'evil-cp-a-form
+       "c" 'evil-cp-a-comment
+       "d" 'evil-cp-a-defun)
 
     #+END_SRC
 *** Modification
@@ -1041,6 +1075,12 @@ simply can't do in vim.  Spacemacs nailed this.
       (bind-normal
        "p" '(undo-tree-undo :which-key "undo")
        "P" '(undo-tree-redo :which-key "redo")
+
+       ";" '(evil-record-macro :which-key "record macro")
+       ":" '(lambda ()
+              (interactive)
+              (evil-execute-macro 1 last-keyboard-macro))
+       "'" '(evil-ex :which-key "ex")
 
        "TAB" '(:ignore t :which-key "fold")
        "TAB TAB" '(origami-recursively-toggle-node :which-key "close")
@@ -1238,13 +1278,16 @@ simply can't do in vim.  Spacemacs nailed this.
                  minibuffer-local-ns-map
                  minibuffer-local-compoetion-map
                  minibuffer-local-must-match-map
-                 minibuffer-local-isearch-map
-                 ivy-minibuffer-map)
+                 minibuffer-local-isearch-map)
       "<escape>" 'abort-recursive-edit)
 
      (general-define-key
       :keymaps '(ivy-minibuffer-map)
       "<escape>" 'keyboard-escape-quit)
+
+     (general-define-key
+      :keymaps '(evil-normal-state-map evil-visual-state-map)
+      "<escape>" 'keyboard-quit)
    #+END_SRC
    
 * Major Modes (file types, languages, etc)
@@ -1357,10 +1400,19 @@ simply can't do in vim.  Spacemacs nailed this.
     - bindings for table editing
     
    #+BEGIN_SRC emacs-lisp
-     (general-define-key
-      :states '(normal visual operator)
+     (bind-navigation-for-maps
       :keymaps 'org-mode-map
-      "RET" 'org-return-indent)
+      "k i" 'org-forward-heading-same-level
+      "k n" 'org-backward-heading-same-level)
+     (bind-normal-for-maps
+      :keymaps 'org-mode-map
+      "RET" 'org-return-indent
+      "w i" 'org-demote-subtree
+      "w n" 'org-promote-subtree
+      "w l" 'org-do-promote
+      "w y" 'org-do-demote
+      "w u" 'org-move-subtree-up
+      "w e" 'org-move-subtree-down)
 
      (bind-mode-menu
       :keymaps 'org-mode-map
@@ -1369,37 +1421,6 @@ simply can't do in vim.  Spacemacs nailed this.
       "h" '(org-insert-heading-respect-content :which-key "insert heading after")
       "H" '(org-insert-subheading :which-key "insert subheading here")
       "t" '(org-table-create :which-key "create table"))
-
-     (defhydra mattly|hydra-org-structure (:color pink)
-       "
-     ^Nav^               ^Subtree^          ^Node^
-     ^^^^^^^^^-----------------------------------------------
-     _h_: up heading     _H_: promote       _N_: promote
-     _j_: next heading   _J_: move down     _P_: demote
-     _k_: prev heading   _K_: move up
-     _n_: next sibling   _L_: demote
-     _p_: prev sibling
-
-     "
-       ("h" outline-up-heading)
-       ("j" org-next-visible-heading)
-       ("k" org-previous-visible-heading)
-       ("n" org-forward-heading-same-level)
-       ("p" org-backward-heading-same-level)
-       ("H" org-promote-subtree)
-       ("J" org-move-subtree-down)
-       ("K" org-move-subtree-up)
-       ("L" org-demote-subtree)
-       ("N" org-do-promote)
-       ("P" org-do-demote)
-       ("q" nil "quit")
-       ("ESC" nil "quit"))
-
-     (general-define-key
-      :prefix "SPC"
-      :states '(normal visual operator)
-      :keymaps 'org-mode-map
-      "k" '(mattly|hydra-org-structure/body :which-key "org structure"))
 
      (general-define-key
       :prefix ","
