@@ -442,7 +442,7 @@ simply can't do in vim.  Spacemacs nailed this.
                               :prefix "SPC"
                               :non-normal-prefix "M-S-SPC"
                               :keymaps 'global
-                              :states '(normal visual operator insert emacs))
+                              :states '(normal visual motion insert emacs))
     #+END_SRC
 
     =bind-mode-menu= makes a binding for the major-mode-specific menu system on
@@ -450,7 +450,7 @@ simply can't do in vim.  Spacemacs nailed this.
     #+BEGIN_SRC emacs-lisp
       (general-create-definer bind-mode-menu
                               :prefix ","
-                              :states '(normal visual))
+                              :states '(normal visual motion))
     #+END_SRC
 ** evil Plugins 
 *** evil-commentary
