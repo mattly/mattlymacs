@@ -423,6 +423,16 @@ simply can't do in vim.  Spacemacs nailed this.
                               :keymaps '(evil-insert-state-map))
       (general-create-definer bind-insert-for-maps
                               :states '(evil-insert-state-map))
+
+      (general-create-definer bind-everywhere
+                              :keymaps 'global
+                              :states '(insert
+                                        normal
+                                        visual
+                                        motion
+                                        operator
+                                        inner-text-objects
+                                        outer-text-objects))
     #+END_SRC
 
     =bind-main-menu= makes bindings for the global menu system on =SPC= for
@@ -845,50 +855,115 @@ simply can't do in vim.  Spacemacs nailed this.
    #+END_SRC
 ** At-Rest (Normal & Visual) immediate mappings
    I'm basically mucking with the vim bindings here.
-   
-   #+BEGIN_SRC emacs-lisp
-     (bind-navigation
-      "W" 'undefined
-      "f" 'undefined
-      "F" 'undefined
-      "g" 'undefined
-      "G" 'undefined
-      ";" 'undefined
-      ":" 'undefined
-      "[" 'undefined
-      "{" 'undefined
-      "]" 'undefined
-      "}" 'undefined
-      "\\" 'undefined
-      "|" 'undefined
-      "\'" 'undefined
-      "\"" 'undefined
-      "b" 'undefined
-      "B" 'undefined
-      "M" 'undefined
-      "," 'undefined
-      "<" 'undefined
-      "." 'undefined
-      ">" 'undefined
-      "`" 'undefined
-      "~" 'undefined
-      "!" 'undefined
-      "@" 'undefined
-      "#" 'undefined
-      "$" 'undefined
-      "^" 'undefined
-      "&" 'undefined
-      "*" 'undefined
-      "(" 'undefined
-      "0" 'undefined
-      ")" 'undefined
-      "-" 'undefined
-      "_" 'undefined
-      "=" 'undefined
-      "+" 'undefined
-      "<escape>" 'undefined)
-
-   #+END_SRC
+*** The great reset
+    #+BEGIN_SRC emacs-lisp
+      (bind-navigation
+       "W" 'undefined
+       "f" 'undefined
+       "F" 'undefined
+       "g" 'undefined
+       "G" 'undefined
+       ";" 'undefined
+       ":" 'undefined
+       "[" 'undefined
+       "{" 'undefined
+       "]" 'undefined
+       "}" 'undefined
+       "\\" 'undefined
+       "|" 'undefined
+       "\'" 'undefined
+       "\"" 'undefined
+       "b" 'undefined
+       "B" 'undefined
+       "m" 'undefined
+       "M" 'undefined
+       "," 'undefined
+       "<" 'undefined
+       "." 'undefined
+       ">" 'undefined
+       "`" 'undefined
+       "~" 'undefined
+       "!" 'undefined
+       "@" 'undefined
+       "#" 'undefined
+       "$" 'undefined
+       "^" 'undefined
+       "&" 'undefined
+       "*" 'undefined
+       "(" 'undefined
+       "0" 'undefined
+       ")" 'undefined
+       "-" 'undefined
+       "_" 'undefined
+       "=" 'undefined
+       "+" 'undefined
+       "ESC" 'undefined
+       "DEL" 'undefined
+       "<f1>" 'undefined
+       "<f2>" 'undefined
+       "<f3>" 'undefined
+       "<f4>" 'undefined
+       "<f10>" 'undefined
+       "<f11>" 'undefined
+       "<f16>" 'undefined
+       "<f18>" 'undefined
+       "<f20>" 'undefined
+       "C-SPC" 'undefined
+       "C--" 'undefined
+       "C-/" 'undefined
+       "C-1" 'undefined
+       "C-2" 'undefined
+       "C-3" 'undefined
+       "C-4" 'undefined
+       "C-5" 'undefined
+       "C-6" 'undefined
+       "C-7" 'undefined
+       "C-8" 'undefined
+       "C-9" 'undefined
+       "C-0" 'undefined
+       "C-?" 'undefined
+       "C-@" 'undefined
+       "C-\\" 'undefined
+       "C-]" 'undefined
+       "C-_" 'undefined
+       "C-b" 'undefined
+       "C-d" 'undefined
+       "C-e" 'undefined
+       "C-f" 'undefined
+       "C-j" 'undefined
+       "C-k" 'undefined
+       "C-l" 'undefined
+       "C-n" 'undefined
+       "C-o" 'undefined
+       "C-q" 'undefined
+       "C-r" 'undefined
+       "C-s" 'undefined
+       "C-t" 'undefined
+       "C-v" 'undefined
+       "C-w" 'undefined
+       "C-y" 'undefined
+       "C-z" 'undefined
+       "C-<backspace>" 'undefined
+       "C-<delete>" 'undefined
+       "C-<down>" 'undefined
+       "C-<end>" 'undefined
+       "C-<f10>" 'undefined
+       "C-<home>" 'undefined
+       "C-<insert>" 'undefined
+       "C-<insertchar>" 'undefined
+       "C-<left>" 'undefined
+       "C-M-<down>" 'undefined
+       "C-M-<end>" 'undefined
+       "C-M-<home>" 'undefined
+       "C-M-<left>" 'undefined
+       "C-M-<right>" 'undefined
+       "C-M-<up>" 'undefined
+       "C-<next>" 'undefined
+       "C-<prior>" 'undefined
+       "C-<right>" 'undefined
+       "C-S-<backspace>" 'undefined
+       "C-S-<up>" 'undefined)
+    #+END_SRC
 *** Navigation
     #+BEGIN_SRC emacs-lisp
       (bind-navigation
@@ -917,18 +992,6 @@ simply can't do in vim.  Spacemacs nailed this.
        "h" 'evil-scroll-page-down
        "J" 'evil-goto-first-line
        "H" 'evil-goto-line
-
-       "m" '(:ignore t :which-key "fold")
-       "m c" '(origami-close-node :which-key "close")
-       "m C" '(origami-close-node-recursively :which-key "close recursively") 
-       "m m" '(origami-forward-toggle-node :which-key "toggle")
-       "m M" '(origami-toggle-all-nodes :which-key "toggle recursively")
-       "m o" '(origami-open-node :which-key "open")
-       "m O" '(origami-open-node-recursively :which-key "open recursively")
-       "m a" '(origami-open-all-nodes :which-key "open all")
-       "m A" '(origami-close-all-nodes :which-key "close all")
-       "m e" '(origami-next-fold :which-key "go next")
-       "m u" '(origami-previous-fold :which-key "go previous")
 
        "/" '(swiper :which-key "swiper")
 
@@ -962,40 +1025,54 @@ simply can't do in vim.  Spacemacs nailed this.
 *** Modification
     #+BEGIN_SRC emacs-lisp
       (bind-modifier
-       "r" 'evil-insert
-       "R" 'evil-insert-line
-       "s" 'evil-append
-       "S" 'evil-append-line
-       "t" 'evil-change
-       "T" 'evil-change-line
-       "q" 'evil-replace
-       "Q" 'evil-replace-state
-       "z" 'evil-open-below
-       "Z" 'evil-open-above
-       "d" 'evil-delete
-       "D" 'evil-delete-line
+       "r" '(evil-insert :which-key "insert here")
+       "R" '(evil-insert-line :which-key "insert at SOL")
+       "s" '(evil-append :which-key "append here")
+       "S" '(evil-append-line :which-key "append at EOL")
+       "t" '(evil-change :which-key "change ______")
+       "T" '(evil-change-line :which-key "change to EOL")
+       "q" '(evil-replace :which-key "replace char")
+       "Q" '(evil-replace-state :which-key "overwrite mode")
+       "z" '(evil-open-below :which-key "open below")
+       "Z" '(evil-open-above :which-key "open above")
+       "d" '(evil-delete :which-key "delete ______")
+       "D" '(evil-delete-line :which-key "delete to EOL")
 
-       "a" 'evil-visual-char
-       "A" 'evil-visual-line
-       "C-a" 'evil-visual-block
+       "a" '(evil-visual-char :which-key "visual char mode")
+       "A" '(evil-visual-line :which-key "visual line mode")
+       "C-a" '(evil-visual-block :which-key "visual block mode")
 
        "w" '(:ignore t :which-key "modify")
-       "w c" '(evil-commentary :which-key "comment (operator)")
-       "w s" '(evil-surround-edit :which-key "comment (operator)"))
+       "w c" '(evil-commentary :which-key "comment ______")
+       "w j" '(evil-join :which-key "join line")
+       "w s" '(evil-surround-edit :which-key "surround ______"))
 
       (bind-normal
-       "p" 'undo-tree-undo
-       "P" 'undo-tree-redo)
+       "p" '(undo-tree-undo :which-key "undo")
+       "P" '(undo-tree-redo :which-key "redo")
+
+       "TAB" '(:ignore t :which-key "fold")
+       "TAB TAB" '(origami-recursively-toggle-node :which-key "close")
+       "TAB c" '(origami-close-node :which-key "close")
+       "TAB C" '(origami-close-node-recursively :which-key "close recursively") 
+       "TAB m" '(origami-forward-toggle-node :which-key "toggle")
+       "TAB M" '(origami-toggle-all-nodes :which-key "toggle recursively")
+       "TAB o" '(origami-open-node :which-key "open")
+       "TAB O" '(origami-open-node-recursively :which-key "open recursively")
+       "TAB a" '(origami-open-all-nodes :which-key "open all")
+       "TAB A" '(origami-close-all-nodes :which-key "close all")
+       "TAB e" '(origami-next-fold :which-key "go next")
+       "TAB u" '(origami-previous-fold :which-key "go previous"))
+
 
       (bind-visual
-       "z" 'exchange-point-and-mark
-       "Z" 'evil-visual-exchange-corners)
+       "z" '(exchange-point-and-mark :which-key "toggle point")
+       "Z" '(evil-visual-exchange-corners :which-key "switch corner (block mode)"))
     #+END_SRC
 *** Et Cetera
     #+BEGIN_SRC emacs-lisp
-      (bind-navigation
-       "TAB" '(origami-recursively-toggle-node :which-key "toggle this fold recursively (like org)")
-       "?" 'which-key-show-top-level
+      (bind-everywhere
+       "?" '(which-key-show-top-level :which-key "show mappings")
        "M-=" '(zoom-in :which-key "zoom in")
        "M--" '(zoom-out :which-key "zoom out")
        "M-x" '(counsel-M-x :which-key "counsel-M-x"))
