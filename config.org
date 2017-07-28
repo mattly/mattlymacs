@@ -786,24 +786,6 @@ simply can't do in vim.  Spacemacs nailed this.
   integrity of that tree and highlight its structure.  Structural editing is that,
   but much more powerful.
   
-** Lisp Mode
-   #+BEGIN_SRC emacs-lisp
-     (defvar lisp-mode-hook nil
-       "A list of hooks to run when entering a lisp mode.")
-
-     (defun run-lisp-mode-hook ()
-       (run-hooks 'lisp-mode-hook))
-
-     (defvar evil-lisp-mode-map (make-sparse-keymap))
-
-     (define-minor-mode evil-lisp-mode
-       "A minor mode for lisp editing in lisp"
-       :lighter " (lisp)"
-       :keymap evil-lisp-mode-map 
-       :init-value nil
-       (run-hooks 'lisp-mode-hook))
-   #+END_SRC
-  
 ** Parinfer
    As an initial experiment, I'm seeing how far I can get with the lighter
    weight [[https://shaunlebron.github.io/parinfer/][Parinfer]] before I feel the need to add something a bit heavier.  I used
@@ -812,20 +794,29 @@ simply can't do in vim.  Spacemacs nailed this.
 
    #+BEGIN_SRC emacs-lisp
      (use-package parinfer
-       :ensure t
        :init
-       (progn
-         (setq parinfer-extensions
-               '(defaults
-                 pretty-parens
-                 evil
-                 smart-yank))
-         (add-hook 'lisp-mode-hook #'parinfer-mode)))
+       (setq parinfer-extensions
+             '(defaults
+               pretty-parens
+               evil
+               SMART-yank)))
    #+END_SRC
 
 ** Evil-Cleverparens
    #+BEGIN_SRC emacs-lisp
      (use-package evil-cleverparens)
+   #+END_SRC
+  
+** Lisp Mode
+   #+BEGIN_SRC emacs-lisp
+     (defvar evil-lisp-mode-map (make-sparse-keymap))
+
+     (define-minor-mode evil-lisp-mode
+       "A minor mode for lisp editing in lisp"
+       :init-value nil
+       :lighter " (lisp)"
+       :keymap evil-lisp-mode-map 
+       (parinfer-mode 1))
    #+END_SRC
 
 ** Bindings
